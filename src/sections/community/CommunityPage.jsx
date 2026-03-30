@@ -3,6 +3,7 @@ import "./community.css";
 import ProductFlowPage from "../product-flow/ProductFlowPage";
 import CoursesPage from "../products/CoursesPage";
 import { SimpleProductPage, ClassificationPage, UtilitiesPage } from "../products/ProductSubPages";
+import TestSeriesPage from "../products/TestSeriesPage";
 
 const navItems = [
   { key: "getstarted", label: "Get Started", type: "link", icon: "trend" },
@@ -425,6 +426,10 @@ function CommunityPage() {
 
     if (activeProductSub === "Utilities") {
       return <UtilitiesPage onToast={showToast} />;
+    }
+
+    if (activeProductSub === "Test Series") {
+      return <TestSeriesPage onToast={showToast} />;
     }
 
     if (activeProductSub === "All Questions") {
