@@ -375,10 +375,7 @@ function CommunityPage() {
     <div className="preview-root">
       <div className="frame-stage">
         <div className="community-shell">
-      <aside className={`community-sidebar ${!sidebarOpen ? "collapsed" : ""}`}>
-        <div id="toggle-sidebar" onClick={toggleSidebar}>
-          {sidebarOpen ? "<" : ">"}
-        </div>
+      <aside id="community-sidebar" className={`community-sidebar ${!sidebarOpen ? "collapsed" : ""}`}>
 
         <div className="sidebar-logo">
           <div className="logo-box">
@@ -455,6 +452,18 @@ function CommunityPage() {
           Log out
         </div>
       </aside>
+
+      <button
+        id="toggle-sidebar"
+        type="button"
+        className={!sidebarOpen ? "collapsed" : ""}
+        aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+        aria-controls="community-sidebar"
+        aria-expanded={sidebarOpen}
+        onClick={toggleSidebar}
+      >
+        {sidebarOpen ? "<" : ">"}
+      </button>
 
       <main className="community-main">
         <div className="community-topbar">

@@ -1,7 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
 
-.community-shell { display: flex; height: 100vh; overflow: hidden; }
+.community-shell { display: flex; height: 100vh; overflow: hidden; position: relative; }
 
 .community-sidebar {
   width: 200px;
@@ -107,7 +107,7 @@ body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
 #toggle-sidebar {
   position: absolute;
   top: 50%;
-  right: -14px;
+  left: 189px;
   transform: translateY(-50%);
   background: #0e4da4;
   border: 2px solid #fff;
@@ -121,6 +121,12 @@ body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
   cursor: pointer;
   z-index: 10;
   font-size: 12px;
+  padding: 0;
+  line-height: 1;
+}
+
+#toggle-sidebar.collapsed {
+  left: 8px;
 }
 
 .community-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
