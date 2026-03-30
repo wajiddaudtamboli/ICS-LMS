@@ -1,10 +1,34 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./community.css";
+import ProductFlowPage from "../product-flow/ProductFlowPage";
+import CoursesPage from "../products/CoursesPage";
+import { SimpleProductPage, ClassificationPage, UtilitiesPage } from "../products/ProductSubPages";
 
 const navItems = [
   { key: "getstarted", label: "Get Started", type: "link", icon: "trend" },
   { key: "dashboard", label: "Dashboard", type: "link", icon: "grid" },
-  { key: "products", label: "Products", type: "link", icon: "box" },
+  {
+    key: "products",
+    label: "Products",
+    type: "group",
+    icon: "box",
+    sub: [
+      "Courses",
+      "Live Classes",
+      "Mock Test",
+      "Test Series",
+      "Bundles",
+      "Batch",
+      "Poll",
+      "Tracks",
+      "Code",
+      "More Products",
+      "Question Pool",
+      "All Questions",
+      "Classification",
+      "Utilities"
+    ]
+  },
   { key: "websiteApps", label: "Website & Apps", type: "group", icon: "screen", sub: ["Pages", "Themes"] },
   {
     key: "community",
@@ -151,8 +175,9 @@ function CommunityPage() {
   const [sidebarQuery, setSidebarQuery] = useState("");
   const [topbarQuery, setTopbarQuery] = useState("");
   const [openGroups, setOpenGroups] = useState({
+    products: true,
     websiteApps: false,
-    community: true,
+    community: false,
     marketing: false,
     sales: false,
     users: false,
@@ -162,7 +187,8 @@ function CommunityPage() {
     security: false,
     subschools: false
   });
-  const [activeNav, setActiveNav] = useState("community");
+  const [activeNav, setActiveNav] = useState("products");
+  const [activeProductSub, setActiveProductSub] = useState("Courses");
   const [activeCommunitySub, setActiveCommunitySub] = useState("Learnyst Communities");
   const [showModal, setShowModal] = useState(false);
   const [communityName, setCommunityName] = useState("");
@@ -233,7 +259,22 @@ function CommunityPage() {
 
   const navigate = (key) => {
     setActiveNav(key);
+    if (key !== "community") {
+      setShowCreatePage(false);
+    }
     showToast(`Navigating to ${key}...`);
+  };
+
+  const openSection = (key) => {
+    setActiveNav(key);
+    if (key === "products") {
+      setOpenGroups((prev) => ({ ...prev, products: true }));
+      setActiveProductSub("Courses");
+    }
+    if (key === "community") {
+      setOpenGroups((prev) => ({ ...prev, community: true }));
+      setActiveCommunitySub("Learnyst Communities");
+    }
   };
 
   const logout = () => {
@@ -361,6 +402,8 @@ function CommunityPage() {
     []
   );
 
+
+
   const topbarBellIcon = useMemo(
     () => (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
@@ -371,10 +414,30 @@ function CommunityPage() {
     []
   );
 
+  const productPage = useMemo(() => {
+    if (activeProductSub === "Courses") {
+      return <CoursesPage sectionTitle={activeProductSub} onToast={showToast} />;
+    }
+
+    if (activeProductSub === "Classification") {
+      return <ClassificationPage onToast={showToast} />;
+    }
+
+    if (activeProductSub === "Utilities") {
+      return <UtilitiesPage onToast={showToast} />;
+    }
+
+    if (activeProductSub === "All Questions") {
+      return <SimpleProductPage title="More Products" subtitleTitle="More Products" onToast={showToast} />;
+    }
+
+    return <SimpleProductPage title={activeProductSub} onToast={showToast} />;
+  }, [activeProductSub]);
+
   return (
     <div className="preview-root">
       <div className="frame-stage">
-        <div className="community-shell">
+        <div className={`community-shell ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <aside id="community-sidebar" className={`community-sidebar ${!sidebarOpen ? "collapsed" : ""}`}>
 
         <div className="sidebar-logo">
@@ -408,6 +471,7 @@ function CommunityPage() {
             }
 
             const isOpen = sidebarQuery.trim() ? true : !!openGroups[item.key];
+            const isProduct = item.key === "products";
             const isCommunity = item.key === "community";
             return (
               <div key={item.key}>
@@ -422,12 +486,17 @@ function CommunityPage() {
                   {item.label}
                   <Chevron />
                 </div>
-                <div className={`sub-menu ${isOpen ? "open" : ""}`}>
+                <div className={`sub-menu ${isOpen ? "open" : ""} ${isProduct ? "products-sub-menu" : ""}`}>
                   {item.sub?.map((sub) => (
                     <div
                       key={`${item.key}-${sub}`}
-                      className={`sub-item ${isCommunity && activeCommunitySub === sub ? "active" : ""}`}
+                      className={`sub-item ${(isCommunity && activeCommunitySub === sub) || (isProduct && activeProductSub === sub) ? "active" : ""}`}
                       onClick={() => {
+                        if (isProduct) {
+                          setActiveProductSub(sub);
+                          setActiveNav("products");
+                          return;
+                        }
                         if (isCommunity) {
                           setActiveCommunitySub(sub);
                           setActiveNav("community");
@@ -490,7 +559,16 @@ function CommunityPage() {
         </div>
 
         <div className="community-content">
-          {showCreatePage ? (
+          {activeNav === "products" ? (
+            productPage
+          ) : activeNav === "dashboard" ? (
+            <ProductFlowPage onToast={showToast} onOpenSection={openSection} />
+          ) : activeNav !== "community" ? (
+            <div className="section-placeholder">
+              <h2>{navItems.find((item) => item.key === activeNav)?.label || "Section"}</h2>
+              <p>This section is connected and ready. Select Products or Community to continue working.</p>
+            </div>
+          ) : showCreatePage ? (
             <div className="create-community-page">
               <button className="back-btn" onClick={() => setShowCreatePage(false)}>
                 &lt; Back

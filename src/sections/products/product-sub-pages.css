@@ -1,0 +1,209 @@
+.product-simple-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.product-dashed-card {
+  min-height: 146px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: transparent;
+}
+
+.product-dashed-card h2 {
+  font-size: 35px;
+  line-height: 1.05;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.product-dashed-card p {
+  font-size: 12px;
+  color: #374151;
+}
+
+.product-create-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.product-create-row button {
+  height: 31px;
+  border: none;
+  border-radius: 7px;
+  padding: 0 18px;
+  background: #0e4da4;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.classification-page {
+  padding-top: 6px;
+}
+
+.classification-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  max-width: 960px;
+}
+
+.classification-card {
+  background: #fff;
+  border: 1px solid #d8dde6;
+  border-radius: 4px;
+  padding: 14px;
+}
+
+.classification-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid #9ca3af;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.classification-icon.cat::before,
+.classification-icon.cat::after,
+.classification-icon.tag::before,
+.classification-icon.seg::before {
+  content: "";
+  position: absolute;
+}
+
+.classification-icon.cat::before {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #6b7280;
+  top: 3px;
+  left: 7px;
+}
+
+.classification-icon.cat::after {
+  width: 10px;
+  height: 1px;
+  background: #6b7280;
+  top: 11px;
+  left: 4px;
+  box-shadow: 0 -4px 0 #6b7280;
+}
+
+.classification-icon.tag {
+  transform: rotate(-45deg);
+}
+
+.classification-icon.tag::before {
+  width: 3px;
+  height: 3px;
+  border: 1px solid #6b7280;
+  border-radius: 50%;
+  top: 3px;
+  right: 3px;
+}
+
+.classification-icon.seg {
+  border-radius: 50%;
+}
+
+.classification-icon.seg::before {
+  width: 1px;
+  height: 8px;
+  background: #6b7280;
+  top: 1px;
+  left: 9px;
+}
+
+.classification-card h3 {
+  font-size: 35px;
+  line-height: 1.05;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.classification-card p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b7280;
+  margin-bottom: 8px;
+  min-height: 52px;
+}
+
+.classification-card button {
+  border: none;
+  background: transparent;
+  color: #0e4da4;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.utilities-page {
+  padding-top: 12px;
+}
+
+.utilities-head h2 {
+  font-size: 35px;
+  line-height: 1.05;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.utilities-head p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #374151;
+  margin-bottom: 18px;
+}
+
+.utilities-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid #d8dde6;
+  border-radius: 4px;
+  background: #fff;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.utilities-card h3 {
+  font-size: 35px;
+  line-height: 1.05;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.utilities-card p,
+.utilities-card small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.utilities-arrow {
+  font-size: 20px;
+  color: #6b7280;
+}
+
+@media (max-width: 1100px) {
+  .classification-grid {
+    grid-template-columns: 1fr;
+    max-width: none;
+  }
+}
