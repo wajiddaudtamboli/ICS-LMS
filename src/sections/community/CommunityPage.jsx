@@ -4,6 +4,7 @@ import ProductFlowPage from "../product-flow/ProductFlowPage";
 import CoursesPage from "../products/CoursesPage";
 import { SimpleProductPage, ClassificationPage, UtilitiesPage } from "../products/ProductSubPages";
 import TestSeriesPage from "../products/TestSeriesPage";
+import LiveClassesPage from "../products/LiveClassesPage";
 
 const navItems = [
   { key: "getstarted", label: "Get Started", type: "link", icon: "trend" },
@@ -430,6 +431,10 @@ function CommunityPage() {
 
     if (activeProductSub === "Test Series") {
       return <TestSeriesPage onToast={showToast} />;
+    }
+
+    if (activeProductSub === "Live Classes") {
+      return <LiveClassesPage onToast={showToast} />;
     }
 
     if (activeProductSub === "All Questions") {
