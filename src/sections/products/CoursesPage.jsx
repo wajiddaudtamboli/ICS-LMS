@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from "react";
 import "./courses.css";
 
-function CoursesPage({ sectionTitle = "Courses", onToast }) {
+function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
   const [selectedFilter, setSelectedFilter] = useState("All Courses");
+  const [coursesSearchQuery, setCoursesSearchQuery] = useState("");
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [openRowMenuId, setOpenRowMenuId] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -29,11 +30,24 @@ function CoursesPage({ sectionTitle = "Courses", onToast }) {
   );
 
   const filteredRows = useMemo(() => {
-    if (selectedFilter === "All Courses") {
-      return rows;
-    }
-    return rows.filter((row) => row.status === selectedFilter);
-  }, [rows, selectedFilter]);
+    const activeSearchQuery = (coursesSearchQuery.trim() || searchQuery.trim()).toLowerCase();
+
+    return rows.filter((row) => {
+      const matchesFilter = selectedFilter === "All Courses" ? true : row.status === selectedFilter;
+      if (!matchesFilter) {
+        return false;
+      }
+
+      if (!activeSearchQuery) {
+        return true;
+      }
+
+      return [row.course, row.status, row.revenue, row.updated]
+        .join(" ")
+        .toLowerCase()
+        .includes(activeSearchQuery);
+    });
+  }, [coursesSearchQuery, rows, searchQuery, selectedFilter]);
 
   const renderCreateTab = () => {
     if (createTab === "content") {
@@ -188,7 +202,12 @@ function CoursesPage({ sectionTitle = "Courses", onToast }) {
       </section>
 
       <section className="courses-toolbar">
-        <input type="text" placeholder="Search" />
+        <input
+          type="text"
+          placeholder="Search"
+          value={coursesSearchQuery || searchQuery}
+          onChange={(event) => setCoursesSearchQuery(event.target.value)}
+        />
         <button type="button" className="btn-filter" onClick={() => setShowFilterMenu((prev) => !prev)}>
           <span aria-hidden="true">⎚</span>
           {selectedFilter}
@@ -230,33 +249,39 @@ function CoursesPage({ sectionTitle = "Courses", onToast }) {
             </tr>
           </thead>
           <tbody>
-            {filteredRows.map((row) => (
-              <tr key={row.id}>
-                <td>{row.course}</td>
-                <td>
-                  <span className={`status-pill ${row.status === "Published" ? "published" : "draft"}`}>{row.status}</span>
-                </td>
-                <td>{row.enrollments}</td>
-                <td>{row.revenue}</td>
-                <td>{row.updated}</td>
-                <td className="actions-cell">
-                  <button
-                    type="button"
-                    className="kebab-btn"
-                    onClick={() => setOpenRowMenuId((prev) => (prev === row.id ? null : row.id))}
-                  >
-                    ⋮
-                  </button>
-                  {openRowMenuId === row.id && (
-                    <div className="row-menu">
-                      <button type="button" onClick={() => { setShowLessonStructure(true); setOpenRowMenuId(null); }}>View</button>
-                      <button type="button" onClick={() => { setShowLessonContent(true); setOpenRowMenuId(null); }}>Edit</button>
-                      <button type="button" onClick={() => { setOpenRowMenuId(null); onToast?.("Course deleted"); }}>Delete</button>
-                    </div>
-                  )}
-                </td>
+            {filteredRows.length === 0 ? (
+              <tr>
+                <td colSpan={6}>No courses found.</td>
               </tr>
-            ))}
+            ) : (
+              filteredRows.map((row) => (
+                <tr key={row.id}>
+                  <td>{row.course}</td>
+                  <td>
+                    <span className={`status-pill ${row.status === "Published" ? "published" : "draft"}`}>{row.status}</span>
+                  </td>
+                  <td>{row.enrollments}</td>
+                  <td>{row.revenue}</td>
+                  <td>{row.updated}</td>
+                  <td className="actions-cell">
+                    <button
+                      type="button"
+                      className="kebab-btn"
+                      onClick={() => setOpenRowMenuId((prev) => (prev === row.id ? null : row.id))}
+                    >
+                      ⋮
+                    </button>
+                    {openRowMenuId === row.id && (
+                      <div className="row-menu">
+                        <button type="button" onClick={() => { setShowLessonStructure(true); setOpenRowMenuId(null); }}>View</button>
+                        <button type="button" onClick={() => { setShowLessonContent(true); setOpenRowMenuId(null); }}>Edit</button>
+                        <button type="button" onClick={() => { setOpenRowMenuId(null); onToast?.("Course deleted"); }}>Delete</button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </section>

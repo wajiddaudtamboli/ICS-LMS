@@ -1,0 +1,780 @@
+import React, { useEffect, useMemo, useState } from "react";
+import "./figma-replica.css";
+
+const mockRows = [
+  {
+    id: 1,
+    courseName: "Complete Web Development Bootcamp",
+    note: "Live attended",
+    instructor: "Dr. Arpita Kathane",
+    dateTime: "26 Apr 2025\n11:00 to 2:00pm",
+    status: "Upcoming"
+  },
+  {
+    id: 2,
+    courseName: "Complete Web Development Bootcamp",
+    note: "Live attended",
+    instructor: "Mr. Amal Ghadge",
+    dateTime: "26 Apr 2025\n11:00 to 2:00pm",
+    status: "Completed"
+  },
+  {
+    id: 3,
+    courseName: "Complete Web Development Bootcamp",
+    note: "Ongoing - Started at 2:00 PM",
+    instructor: "Dr. Arpita Kathane",
+    dateTime: "26 Apr 2025\n11:00 to 2:00pm",
+    status: "Published"
+  },
+  {
+    id: 4,
+    courseName: "Complete Web Development Bootcamp",
+    note: "Live attended",
+    instructor: "Mr. Amal Ghadge",
+    dateTime: "26 Apr 2025\n11:00 to 2:00pm",
+    status: "Ongoing"
+  },
+  {
+    id: 5,
+    courseName: "Complete Web Development Bootcamp",
+    note: "Cancelled",
+    instructor: "Mr. Sumit Dorle",
+    dateTime: "Started at 2:00pm",
+    status: "Cancelled"
+  }
+];
+
+const builderQuestions = [
+  "How many videos are allowed in one Lesson",
+  "How many videos are allowed in one Lesson",
+  "How many videos are allowed in one Lesson",
+  "How many videos are allowed in one Lesson",
+  "How many videos are allowed in one Lesson"
+];
+
+const formCards = ["Abc Pool", "Abc Pool"];
+
+const mockScreens = [
+  { id: "mock-01", label: "01 Mock List" },
+  { id: "mock-02", label: "02 Builder Open" },
+  { id: "mock-03", label: "03 Builder Collapsed" },
+  { id: "mock-04", label: "04 Create Inline" },
+  { id: "mock-05", label: "05 Create Modal" },
+  { id: "mock-06", label: "06 Quick Actions" },
+  { id: "mock-07", label: "07 Questions Added" },
+  { id: "mock-08", label: "08 MCQ Design" },
+  { id: "mock-09", label: "09 Selected Questions" },
+  { id: "mock-10", label: "10 Import Success" }
+];
+
+const formScreens = [
+  { id: "form-11", label: "11 Form + Theme" },
+  { id: "form-12", label: "12 Question Card" },
+  { id: "form-13", label: "13 Form Plain" },
+  { id: "form-14", label: "14 Pool Overlay" },
+  { id: "form-15", label: "15 Pool Standalone" },
+  { id: "form-16", label: "16 Insert Image" },
+  { id: "form-17", label: "17 Drive Picker" },
+  { id: "form-18", label: "18 Theme Blur" },
+  { id: "form-19", label: "19 Minimal Header" }
+];
+
+function statusClassName(status) {
+  if (status === "Upcoming") return "status-upcoming";
+  if (status === "Completed") return "status-completed";
+  if (status === "Published") return "status-published";
+  if (status === "Ongoing") return "status-ongoing";
+  return "status-cancelled";
+}
+
+function FigmaReplicaPage({ onToast, searchQuery = "" }) {
+  const [activeScreen, setActiveScreen] = useState("mock-01");
+  const [experience, setExperience] = useState("mock");
+  const [mockMode, setMockMode] = useState("list");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAddQuestions, setShowAddQuestions] = useState(false);
+  const [showQuickActions, setShowQuickActions] = useState(false);
+  const [showMcqDesign, setShowMcqDesign] = useState(false);
+  const [showImportedOk, setShowImportedOk] = useState(false);
+  const [showSelectedQuestions, setShowSelectedQuestions] = useState(false);
+  const [selectedCount, setSelectedCount] = useState(0);
+  const [collapsedSection, setCollapsedSection] = useState(false);
+  const [showPoolPicker, setShowPoolPicker] = useState(false);
+  const [poolTab, setPoolTab] = useState("Pool");
+  const [showTheme, setShowTheme] = useState(true);
+  const [formMode, setFormMode] = useState("builder");
+  const [formVariant, setFormVariant] = useState("capital");
+  const [showFormDim, setShowFormDim] = useState(false);
+
+  const resolvedSearch = searchQuery.trim().toLowerCase();
+
+  const filteredRows = useMemo(() => {
+    if (!resolvedSearch) {
+      return mockRows;
+    }
+
+    return mockRows.filter((row) =>
+      [row.courseName, row.note, row.instructor, row.dateTime, row.status]
+        .join(" ")
+        .toLowerCase()
+        .includes(resolvedSearch)
+    );
+  }, [resolvedSearch]);
+
+  const openBuilder = () => {
+    setMockMode("builder");
+    setShowCreateModal(false);
+    onToast?.("Mock test builder opened");
+  };
+
+  const resetOverlays = () => {
+    setShowCreateModal(false);
+    setShowAddQuestions(false);
+    setShowQuickActions(false);
+    setShowMcqDesign(false);
+    setShowImportedOk(false);
+    setShowSelectedQuestions(false);
+    setShowPoolPicker(false);
+    setShowFormDim(false);
+  };
+
+  const applyScreen = (screenId) => {
+    setActiveScreen(screenId);
+    resetOverlays();
+
+    if (screenId.startsWith("mock")) {
+      setExperience("mock");
+      setFormMode("builder");
+      setFormVariant("capital");
+      setShowTheme(true);
+    } else {
+      setExperience("form");
+      setMockMode("builder");
+      setSelectedCount(0);
+      setCollapsedSection(false);
+      setShowTheme(true);
+      setFormMode("builder");
+    }
+
+    if (screenId === "mock-01") {
+      setMockMode("list");
+      setSelectedCount(0);
+      setCollapsedSection(false);
+    }
+    if (screenId === "mock-02") {
+      setMockMode("builder");
+      setSelectedCount(0);
+      setCollapsedSection(false);
+    }
+    if (screenId === "mock-03") {
+      setMockMode("builder");
+      setCollapsedSection(true);
+      setSelectedCount(0);
+    }
+    if (screenId === "mock-04") {
+      setMockMode("createInline");
+    }
+    if (screenId === "mock-05") {
+      setMockMode("list");
+      setShowCreateModal(true);
+    }
+    if (screenId === "mock-06") {
+      setMockMode("builder");
+      setShowQuickActions(true);
+    }
+    if (screenId === "mock-07") {
+      setMockMode("builder");
+      setSelectedCount(5);
+    }
+    if (screenId === "mock-08") {
+      setMockMode("builder");
+      setShowMcqDesign(true);
+    }
+    if (screenId === "mock-09") {
+      setMockMode("builder");
+      setShowMcqDesign(true);
+      setShowSelectedQuestions(true);
+    }
+    if (screenId === "mock-10") {
+      setMockMode("builder");
+      setShowMcqDesign(true);
+      setShowImportedOk(true);
+    }
+
+    if (screenId === "form-11") {
+      setFormMode("builder");
+      setFormVariant("capital");
+      setShowTheme(true);
+    }
+    if (screenId === "form-12") {
+      setFormMode("builder");
+      setFormVariant("question");
+      setShowTheme(true);
+    }
+    if (screenId === "form-13") {
+      setFormMode("builder");
+      setFormVariant("capital");
+      setShowTheme(false);
+    }
+    if (screenId === "form-14") {
+      setFormMode("builder");
+      setFormVariant("capital");
+      setShowTheme(true);
+      setShowPoolPicker(true);
+      setShowFormDim(true);
+    }
+    if (screenId === "form-15") {
+      setFormMode("poolStandalone");
+      setFormVariant("capital");
+      setShowTheme(false);
+    }
+    if (screenId === "form-16") {
+      setFormMode("insertImage");
+    }
+    if (screenId === "form-17") {
+      setFormMode("drivePicker");
+    }
+    if (screenId === "form-18") {
+      setFormMode("builder");
+      setFormVariant("capital");
+      setShowTheme(true);
+      setShowFormDim(true);
+    }
+    if (screenId === "form-19") {
+      setFormMode("builder");
+      setFormVariant("minimal");
+      setShowTheme(false);
+    }
+  };
+
+  useEffect(() => {
+    applyScreen(activeScreen);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const renderMockList = () => (
+    <div className="figma-screen-card">
+      <section className="figma-header-card">
+        <div>
+          <h2>Mock Test</h2>
+          <p>View and manage your Mock Test</p>
+        </div>
+        <button type="button" className="figma-primary" onClick={() => setShowCreateModal(true)}>
+          + Create Live Class
+        </button>
+      </section>
+
+      <section className="figma-toolbar-card">
+        <input placeholder="Search" />
+        <div className="figma-tool-btns">
+          <button type="button">◫</button>
+          <button type="button">⚙</button>
+          <button type="button">⌁</button>
+        </div>
+      </section>
+
+      <section className="figma-table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Course Name</th>
+              <th>Instructor</th>
+              <th>Date & Time</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredRows.map((row) => (
+              <tr key={row.id}>
+                <td>
+                  <strong>{row.courseName}</strong>
+                  <span>{row.note}</span>
+                </td>
+                <td>{row.instructor}</td>
+                <td>{row.dateTime}</td>
+                <td>
+                  <span className={`figma-status ${statusClassName(row.status)}`}>{row.status}</span>
+                </td>
+                <td>
+                  <button type="button" className="kebab" onClick={openBuilder}>
+                    ⋮
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </div>
+  );
+
+  const renderCreateInline = () => (
+    <div className="figma-screen-card">
+      <div className="figma-breadcrumb">Mock Test / Create Mock Test</div>
+      <section className="builder-shell create-inline-shell">
+        <h3>Create Test Series</h3>
+        <p>Start creating a new test series</p>
+        <div className="inline-grid-two">
+          <label>
+            Title*
+            <input placeholder="Enter Mock Test Title" />
+          </label>
+          <label>
+            Price
+            <input placeholder="Price" />
+          </label>
+        </div>
+        <label className="inline-check-row"><input type="checkbox" /> Make this a free mock test</label>
+        <div className="quiz-type-cards">
+          <label><input type="radio" name="quiztypeInline" defaultChecked /> Online quiz</label>
+          <label><input type="radio" name="quiztypeInline" /> Offline quiz</label>
+        </div>
+        <label>
+          Select Template
+          <select defaultValue="Select"><option>Select</option></select>
+        </label>
+        <div className="inline-actions-row">
+          <button type="button" className="figma-primary" onClick={() => applyScreen("mock-02")}>Create</button>
+          <button type="button" className="figma-secondary" onClick={() => applyScreen("mock-01")}>Cancel</button>
+        </div>
+      </section>
+    </div>
+  );
+
+  const renderMockBuilder = () => (
+    <div className="figma-screen-card">
+      <div className="figma-breadcrumb">Mock Test / Create Mock Test</div>
+      <section className="builder-shell">
+        <div className="builder-head">
+          <div>
+            <span className="chip-unpublished">Un-published</span>
+            <h2>Research Writing &amp; Use of AI</h2>
+          </div>
+          <div className="builder-actions">
+            <button type="button">⌄</button>
+            <button type="button">↻</button>
+            <button type="button" onClick={() => setShowQuickActions((prev) => !prev)}>⚙</button>
+          </div>
+        </div>
+
+        <div className="builder-search-row">
+          <input placeholder="Search" />
+          <div>{selectedCount} Questions</div>
+          <div>{selectedCount} Marks</div>
+        </div>
+
+        <button type="button" className="section-row" onClick={() => setCollapsedSection((prev) => !prev)}>
+          <span>{collapsedSection ? "⌄" : "⌃"} 1. Section 1</span>
+          <span>• 0 Questions • 0 Marks • 0 Groups</span>
+        </button>
+
+        {!collapsedSection && (
+          <>
+            <button type="button" className="btn-add-question" onClick={() => setShowAddQuestions(true)}>
+              + Add Question
+            </button>
+            {selectedCount > 0 && (
+              <div className="question-list">
+                {builderQuestions.slice(0, selectedCount).map((question, index) => (
+                  <div className="question-row" key={`${question}-${index}`}>
+                    <span>{index + 1}. {question}</span>
+                    <span>#Course</span>
+                    <span className="tag-easy">Easy</span>
+                    <button type="button">•••</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        <button type="button" className="btn-add-section" onClick={() => onToast?.("Section created successfully")}>+ Add Section</button>
+
+        {showQuickActions && (
+          <div className="quick-actions-menu">
+            <button type="button" onClick={() => { setShowMcqDesign(true); setShowQuickActions(false); }}>View All Questions</button>
+            <button type="button" onClick={() => { setShowMcqDesign(true); setShowQuickActions(false); }}>Export Questions</button>
+            <button type="button" onClick={() => { setShowMcqDesign(true); setShowQuickActions(false); }}>Import</button>
+            <button type="button">Quiz Instructions</button>
+            <button type="button">Test Attachments</button>
+            <button type="button">Questions Group</button>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+
+  const renderFormBuilder = () => (
+    <div className="figma-form-wrapper">
+      <div className="form-header-line">
+        <img className="form-logo" src="/image.png" alt="ICS" />
+        <div className="form-back-line">Back</div>
+        <div className="form-tabs">
+          <button type="button" className="active">Questions</button>
+          <button type="button">Responses</button>
+          <button type="button">Settings</button>
+        </div>
+        <div className="form-top-actions">
+          <button type="button" className="figma-primary">Publish</button>
+          <span className="avatar-round">J</span>
+        </div>
+      </div>
+
+      <div className="form-main-layout">
+        <section className="form-questions-area">
+          <article className={`form-card ${formVariant === "minimal" ? "minimal" : ""}`}>
+            {formVariant === "minimal" ? (
+              <>
+                <div className="editor-tools wide">⌂ B I U ☰ Ξ ∞ ✈</div>
+                <input className="desc-input" placeholder="Add description" />
+              </>
+            ) : (
+              <>
+                <input className="title-input" placeholder="Untitled Title" />
+                <div className="editor-tools">B I U ∞ ✈</div>
+                <input className="desc-input" placeholder="Description (optional)" />
+              </>
+            )}
+          </article>
+          <article className="form-card"><h3>Name<span>*</span></h3><input placeholder="Short answer text" /></article>
+          <article className="form-card"><h3>Email<span>*</span></h3><input placeholder="Short answer text" /></article>
+          <article className="form-card"><h3>Phone Number<span>*</span></h3><input placeholder="Short answer text" /></article>
+          {formVariant !== "minimal" && (
+            <article className="form-card radio-card">
+              <div className="radio-head">
+                <input value={formVariant === "capital" ? "Capital of India" : "Question"} readOnly />
+                <select defaultValue="Multiple choice"><option>Multiple choice</option></select>
+              </div>
+              {formVariant === "capital" ? (
+                <>
+                  <label><input type="radio" /> New Delhi.</label>
+                  <label><input type="radio" /> Kolhapur</label>
+                  <label><input type="radio" /> Mumbai.</label>
+                  <label><input type="radio" /> Pune.</label>
+                  <div className="question-footer-line">Required ◯</div>
+                </>
+              ) : (
+                <>
+                  <label><input type="radio" /> Option 1</label>
+                  <label><input type="radio" /> Add option or add "Other"</label>
+                  <div className="question-footer-line">Required ◯</div>
+                </>
+              )}
+            </article>
+          )}
+        </section>
+
+        {showTheme && (
+          <aside className="theme-panel">
+            <div className="theme-head">
+              <h4>Theme</h4>
+              <button type="button" onClick={() => setShowTheme(false)}>×</button>
+            </div>
+            <label>Header<select defaultValue="Roboto"><option>Roboto</option></select></label>
+            <label>Question<select defaultValue="Roboto"><option>Roboto</option></select></label>
+            <label>Text<select defaultValue="Roboto"><option>Roboto</option></select></label>
+            <div className="theme-swatches">
+              {Array.from({ length: 14 }).map((_, idx) => <span key={`sw-${idx}`} />)}
+            </div>
+            <div className="theme-action-stack">
+              <button type="button" onClick={() => applyScreen("form-16")}>Insert Image</button>
+              <button type="button" onClick={() => applyScreen("form-17")}>Drive Picker</button>
+            </div>
+          </aside>
+        )}
+      </div>
+
+      <button type="button" className="pool-launch" onClick={() => setShowPoolPicker(true)}>Open Pool Picker</button>
+    </div>
+  );
+
+  const renderPoolStandalone = () => (
+    <div className="pool-standalone-screen">
+      <div className="pool-picker-modal standalone">
+        <div className="pool-search">
+          <input placeholder="Search" />
+          <button type="button">⚙</button>
+        </div>
+        <div className="pool-tabs">
+          {[
+            "Pool",
+            "Word document",
+            "Excel sheet"
+          ].map((tab) => (
+            <button key={tab} type="button" className={poolTab === tab ? "active" : ""} onClick={() => setPoolTab(tab)}>{tab}</button>
+          ))}
+        </div>
+        <div className="pool-title small">Pool</div>
+        <div className="pool-subtitle">Today</div>
+        <div className="pool-cards">
+          <button type="button" className="pool-card">
+            <div className="pool-thumb" />
+            <span>Abc Pool</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderInsertImage = () => (
+    <div className="dialog-shell">
+      <div className="insert-image-dialog">
+        <div className="dialog-head"><h3>Insert image</h3><button type="button">×</button></div>
+        <div className="insert-tabs">
+          {[
+            "Upload",
+            "Webcam",
+            "By URL",
+            "Photos",
+            "Google Drive",
+            "Google Images"
+          ].map((tab, idx) => <button type="button" key={tab} className={idx === 0 ? "active" : ""}>{tab}</button>)}
+        </div>
+        <div className="upload-drop">
+          <div className="cloud-shape" />
+          <button type="button" className="figma-primary">Browse</button>
+          <p>or drag a file here</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderDrivePicker = () => (
+    <div className="dialog-shell">
+      <div className="drive-picker-dialog">
+        <div className="dialog-head"><h3>Select Form</h3><button type="button">×</button></div>
+        <div className="drive-search"><input placeholder="Search in Drive or paste URL" /></div>
+        <div className="drive-tabs">
+          <button type="button">Recent</button>
+          <button type="button" className="active">My Drive</button>
+          <button type="button">Shared with me</button>
+        </div>
+        <div className="drive-row">My Drive</div>
+        <div className="drive-folders">
+          <button type="button">ICS</button>
+          <button type="button">सामाजिक उद्योगजगता ...</button>
+        </div>
+        <div className="drive-files-title">Files</div>
+        <button type="button" className="drive-file-card">
+          <div className="pool-thumb" />
+          <span>Contact Information</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="figma-replica-page">
+      <div className="experience-switch">
+        <button type="button" className={experience === "mock" ? "active" : ""} onClick={() => setExperience("mock")}>Mock Test Flow</button>
+        <button type="button" className={experience === "form" ? "active" : ""} onClick={() => setExperience("form")}>Form Builder Flow</button>
+      </div>
+
+      <div className="scene-switcher">
+        {(experience === "mock" ? mockScreens : formScreens).map((screen) => (
+          <button
+            key={screen.id}
+            type="button"
+            className={activeScreen === screen.id ? "active" : ""}
+            onClick={() => applyScreen(screen.id)}
+          >
+            {screen.label}
+          </button>
+        ))}
+      </div>
+
+      {experience === "mock" ? (
+        mockMode === "list" ? renderMockList() : mockMode === "createInline" ? renderCreateInline() : renderMockBuilder()
+      ) : formMode === "poolStandalone" ? (
+        renderPoolStandalone()
+      ) : formMode === "insertImage" ? (
+        renderInsertImage()
+      ) : formMode === "drivePicker" ? (
+        renderDrivePicker()
+      ) : (
+        renderFormBuilder()
+      )}
+
+      {showCreateModal && (
+        <div className="figma-overlay" onClick={(event) => event.target.classList.contains("figma-overlay") && setShowCreateModal(false)}>
+          <div className="create-series-modal">
+            <button type="button" className="close" onClick={() => setShowCreateModal(false)}>×</button>
+            <h3>Mock Test / Create Courses</h3>
+            <div className="modal-form">
+              <h4>Create Courses</h4>
+              <p>Start creating a new test series</p>
+              <label>Title*<input placeholder="Enter Mock Test Title" /></label>
+              <label>Price<input placeholder="Price" /></label>
+              <label className="inline"><input type="checkbox" /> Make this a free mock test</label>
+              <div className="quiz-type-cards">
+                <label><input type="radio" name="quiztype" defaultChecked /> Online quiz</label>
+                <label><input type="radio" name="quiztype" /> Offline quiz</label>
+              </div>
+              <label>Select Template<select defaultValue="Select"><option>Select</option></select></label>
+            </div>
+            <div className="modal-actions">
+              <button type="button" className="figma-primary" onClick={openBuilder}>Create</button>
+              <button type="button" className="figma-secondary" onClick={() => setShowCreateModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAddQuestions && (
+        <div className="figma-overlay" onClick={(event) => event.target.classList.contains("figma-overlay") && setShowAddQuestions(false)}>
+          <div className="add-questions-modal">
+            <button type="button" className="close" onClick={() => setShowAddQuestions(false)}>×</button>
+            <h3>Add Questions</h3>
+            <p>Select to add questions, test attachment or group the questions</p>
+            <div className="question-type-grid">
+              {[
+                "Multiple Choice",
+                "Numerical",
+                "Essay",
+                "Fill In The Blanks",
+                "Group Question",
+                "Multi Input Reasoning",
+                "Two Part Analysis",
+                "Graphical Interpretation",
+                "Multiple Choice V2"
+              ].map((item) => (
+                <button key={item} type="button" className={item === "Numerical" ? "selected" : ""}>{item}</button>
+              ))}
+            </div>
+            <div className="modal-actions-end">
+              <button type="button" className="figma-primary" onClick={() => {
+                setSelectedCount(5);
+                setShowAddQuestions(false);
+                onToast?.("Questions added");
+              }}>
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showMcqDesign && (
+        <div className="figma-overlay" onClick={(event) => event.target.classList.contains("figma-overlay") && setShowMcqDesign(false)}>
+          <div className="mcq-design-modal">
+            <button type="button" className="close" onClick={() => setShowMcqDesign(false)}>×</button>
+            <h3>MCQ Design</h3>
+            <p>Only the questions that are not imported into the test will be displayed here</p>
+            <div className="mcq-toolbar">
+              <input placeholder="Search by question Details" />
+              <button type="button" onClick={() => setShowSelectedQuestions(true)}>Selected item Count : 2</button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th />
+                  <th>Question Detail</th>
+                  <th>Question Type</th>
+                  <th>Question Tag</th>
+                  <th>Question Level</th>
+                  <th>Marks</th>
+                  <th>Used</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td>249 + 250 = _ _ _ ?</td>
+                  <td>Design</td>
+                  <td>UI</td>
+                  <td>Medium</td>
+                  <td><span className="pos">+ 3.0</span> / <span className="neg">- 0.0</span></td>
+                  <td>11</td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td>249 + 250 = _ _ _ ?</td>
+                  <td>Research</td>
+                  <td>UX</td>
+                  <td>Easy</td>
+                  <td><span className="pos">+ 5.0</span> / <span className="neg">- 0.0</span></td>
+                  <td>12</td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="mcq-actions">
+              <button type="button" className="figma-primary" onClick={() => { setShowImportedOk(true); setShowMcqDesign(false); }}>Export</button>
+              <button type="button" className="figma-secondary" onClick={() => setShowMcqDesign(false)}>CANCEL</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showImportedOk && (
+        <div className="figma-overlay" onClick={(event) => event.target.classList.contains("figma-overlay") && setShowImportedOk(false)}>
+          <div className="import-success-dialog">
+            <p>Questions are imported to the quiz, Go back to Quiz Builder and verify the questions</p>
+            <button type="button" className="figma-primary" onClick={() => setShowImportedOk(false)}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {showSelectedQuestions && (
+        <div className="figma-overlay" onClick={(event) => event.target.classList.contains("figma-overlay") && setShowSelectedQuestions(false)}>
+          <div className="selected-questions-modal">
+            <button type="button" className="close" onClick={() => setShowSelectedQuestions(false)}>×</button>
+            <h3>2 Question Selected</h3>
+            <p>Only the questions that are not imported into the test will be displayed here</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Question Detail</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>249 + 250 = _ _ _ ?</td>
+                  <td><button type="button">Remove</button></td>
+                </tr>
+                <tr>
+                  <td>249 + 250 = _ _ _ ?</td>
+                  <td><button type="button">Remove</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {showPoolPicker && (
+        <div className="figma-overlay" onClick={(event) => event.target.classList.contains("figma-overlay") && setShowPoolPicker(false)}>
+          <div className="pool-picker-modal">
+            <button type="button" className="close" onClick={() => setShowPoolPicker(false)}>×</button>
+            <div className="pool-search">
+              <input placeholder="Search" />
+              <button type="button">⚙</button>
+            </div>
+            <div className="pool-tabs">
+              {["Pool", "Word document", "Excel sheet", "Mt Drive"].map((tab) => (
+                <button key={tab} type="button" className={poolTab === tab ? "active" : ""} onClick={() => setPoolTab(tab)}>
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <div className="pool-title">Pool</div>
+            <div className="pool-subtitle">Today</div>
+            <div className="pool-cards">
+              {formCards.map((card, index) => (
+                <button type="button" className="pool-card" key={`${card}-${index}`}>
+                  <div className="pool-thumb" />
+                  <span>{card}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showFormDim && <div className="form-dimmer" />}
+    </div>
+  );
+}
+
+export default FigmaReplicaPage;

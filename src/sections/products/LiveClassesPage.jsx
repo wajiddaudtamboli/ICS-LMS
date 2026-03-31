@@ -44,9 +44,10 @@ const initialLiveClasses = [
   }
 ];
 
-function LiveClassesPage({ onToast }) {
+function LiveClassesPage({ onToast, searchQuery = "" }) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [classesData, setClassesData] = useState(initialLiveClasses);
+  const [classesSearchQuery, setClassesSearchQuery] = useState("");
   const [openRowMenuId, setOpenRowMenuId] = useState(null);
   const [showEditorModal, setShowEditorModal] = useState(false);
   const [editorTab, setEditorTab] = useState("details");
@@ -56,7 +57,7 @@ function LiveClassesPage({ onToast }) {
   const [showTimeZoneDialog, setShowTimeZoneDialog] = useState(false);
   const [showSendLikeDialog, setShowSendLikeDialog] = useState(false);
 
-  const isEmpty = classesData.length === 0;
+  const activeSearchQuery = (classesSearchQuery.trim() || searchQuery.trim()).toLowerCase();
 
   const statusClassName = (status) => {
     if (status === "Upcoming") return "status-upcoming";
@@ -66,7 +67,20 @@ function LiveClassesPage({ onToast }) {
     return "status-cancelled";
   };
 
-  const tableRows = useMemo(() => classesData, [classesData]);
+  const tableRows = useMemo(() => {
+    if (!activeSearchQuery) {
+      return classesData;
+    }
+
+    return classesData.filter((item) =>
+      [item.courseName, item.note, item.instructor, item.dateTime, item.status]
+        .join(" ")
+        .toLowerCase()
+        .includes(activeSearchQuery)
+    );
+  }, [activeSearchQuery, classesData]);
+
+  const isEmpty = tableRows.length === 0;
 
   const openEditor = () => {
     setShowEditorModal(true);
@@ -180,7 +194,11 @@ function LiveClassesPage({ onToast }) {
       </section>
 
       <section className="live-toolbar">
-        <input placeholder="Search" />
+        <input
+          placeholder="Search"
+          value={classesSearchQuery || searchQuery}
+          onChange={(event) => setClassesSearchQuery(event.target.value)}
+        />
         <button type="button" className="icon-btn">user</button>
         <button type="button" className="icon-btn">slider</button>
         <button type="button" className="icon-btn">calendar</button>
@@ -189,7 +207,7 @@ function LiveClassesPage({ onToast }) {
       {isEmpty ? (
         <section className="live-empty-card">
           <div className="empty-illustration">No Results</div>
-          <h4>No results found</h4>
+          <h4>{activeSearchQuery ? `No results found for "${classesSearchQuery || searchQuery}"` : "No results found"}</h4>
         </section>
       ) : (
         <section className="live-table-card">

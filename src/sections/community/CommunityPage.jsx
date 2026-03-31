@@ -5,6 +5,7 @@ import CoursesPage from "../products/CoursesPage";
 import { SimpleProductPage, ClassificationPage, UtilitiesPage } from "../products/ProductSubPages";
 import TestSeriesPage from "../products/TestSeriesPage";
 import LiveClassesPage from "../products/LiveClassesPage";
+import FigmaReplicaPage from "../products/FigmaReplicaPage";
 
 const navItems = [
   { key: "getstarted", label: "Get Started", type: "link", icon: "trend" },
@@ -418,7 +419,7 @@ function CommunityPage() {
 
   const productPage = useMemo(() => {
     if (activeProductSub === "Courses") {
-      return <CoursesPage sectionTitle={activeProductSub} onToast={showToast} />;
+      return <CoursesPage sectionTitle={activeProductSub} onToast={showToast} searchQuery={topbarQuery} />;
     }
 
     if (activeProductSub === "Classification") {
@@ -434,7 +435,11 @@ function CommunityPage() {
     }
 
     if (activeProductSub === "Live Classes") {
-      return <LiveClassesPage onToast={showToast} />;
+      return <LiveClassesPage onToast={showToast} searchQuery={topbarQuery} />;
+    }
+
+    if (activeProductSub === "Mock Test") {
+      return <FigmaReplicaPage onToast={showToast} searchQuery={topbarQuery} />;
     }
 
     if (activeProductSub === "All Questions") {
@@ -442,7 +447,7 @@ function CommunityPage() {
     }
 
     return <SimpleProductPage title={activeProductSub} onToast={showToast} />;
-  }, [activeProductSub]);
+  }, [activeProductSub, topbarQuery]);
 
   return (
     <div className="preview-root">

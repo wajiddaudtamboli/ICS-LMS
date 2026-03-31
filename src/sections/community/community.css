@@ -69,6 +69,7 @@ body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
   font-size: 11px;
   color: rgba(255,255,255,.88);
   border-radius: 7px;
+  -webkit-user-select: none;
   user-select: none;
   position: relative;
   transition: background .15s;
