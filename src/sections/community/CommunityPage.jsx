@@ -173,7 +173,8 @@ function Chevron() {
 }
 
 function CommunityPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(() => (typeof window !== "undefined" ? window.innerWidth < 768 : false));
+  const [sidebarOpen, setSidebarOpen] = useState(() => (typeof window !== "undefined" ? window.innerWidth >= 768 : true));
   const [showCreatePage, setShowCreatePage] = useState(false);
   const [sidebarQuery, setSidebarQuery] = useState("");
   const [topbarQuery, setTopbarQuery] = useState("");
@@ -247,6 +248,12 @@ function CommunityPage() {
 
   const toggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
+  };
+
+  const closeSidebarOnMobile = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
   };
 
   const showToast = (message) => {
@@ -397,6 +404,18 @@ function CommunityPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const syncLayout = () => {
+      const nextIsMobile = window.innerWidth < 768;
+      setIsMobile(nextIsMobile);
+      setSidebarOpen(!nextIsMobile);
+    };
+
+    syncLayout();
+    window.addEventListener("resize", syncLayout);
+    return () => window.removeEventListener("resize", syncLayout);
+  }, []);
+
   const topbarHelpIcon = useMemo(
     () => (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
@@ -455,7 +474,7 @@ function CommunityPage() {
   return (
     <div className="preview-root">
       <div className="frame-stage">
-        <div className={`community-shell ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
+        <div className={`community-shell ${isMobile ? "is-mobile" : "is-desktop"} ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       <aside id="community-sidebar" className={`community-sidebar ${!sidebarOpen ? "collapsed" : ""}`}>
 
         <div className="sidebar-logo">
@@ -480,7 +499,10 @@ function CommunityPage() {
                 <div
                   key={item.key}
                   className={`nav-item ${activeNav === item.key ? "active" : ""}`}
-                  onClick={() => navigate(item.key)}
+                  onClick={() => {
+                    navigate(item.key);
+                    closeSidebarOnMobile();
+                  }}
                 >
                   <Icon name={item.icon} />
                   {item.label}
@@ -498,6 +520,9 @@ function CommunityPage() {
                   onClick={() => {
                     toggleSub(item.key);
                     setActiveNav(item.key);
+                    if (item.key !== "products" && item.key !== "community") {
+                      closeSidebarOnMobile();
+                    }
                   }}
                 >
                   <Icon name={item.icon} />
@@ -513,11 +538,13 @@ function CommunityPage() {
                         if (isProduct) {
                           setActiveProductSub(sub);
                           setActiveNav("products");
+                          closeSidebarOnMobile();
                           return;
                         }
                         if (isCommunity) {
                           setActiveCommunitySub(sub);
                           setActiveNav("community");
+                          closeSidebarOnMobile();
                         }
                       }}
                     >
@@ -540,20 +567,29 @@ function CommunityPage() {
         </div>
       </aside>
 
+      <button
+        type="button"
+        className={`sidebar-overlay ${isMobile && sidebarOpen ? "show" : ""}`}
+        aria-label="Close sidebar"
+        onClick={() => setSidebarOpen(false)}
+      />
+
       <main className="community-main">
         <div className="community-topbar">
           <div className="topbar-left">
-            <button
-              id="toggle-sidebar"
-              type="button"
-              className={!sidebarOpen ? "collapsed" : ""}
-              aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-              aria-controls="community-sidebar"
-              aria-expanded={sidebarOpen}
-              onClick={toggleSidebar}
-            >
-              {sidebarOpen ? "<" : ">"}
-            </button>
+            {isMobile && (
+              <button
+                id="toggle-sidebar"
+                type="button"
+                className={!sidebarOpen ? "collapsed" : ""}
+                aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+                aria-controls="community-sidebar"
+                aria-expanded={sidebarOpen}
+                onClick={toggleSidebar}
+              >
+                {sidebarOpen ? "×" : "☰"}
+              </button>
+            )}
           </div>
           <div className="topbar-actions-right">
             <div className="search-wrap">
