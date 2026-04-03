@@ -222,6 +222,11 @@
   border-collapse: collapse;
   border: 1px solid #d8dde6;
   border-radius: 7px;
+  overflow: visible;
+}
+
+.mcq-design-modal table,
+.selected-questions-modal table {
   overflow: hidden;
 }
 
@@ -300,6 +305,38 @@
   width: 72px;
   min-width: 72px;
   text-align: center;
+  position: relative;
+}
+
+.figma-actions-cell.menu-open {
+  z-index: 30;
+}
+
+.figma-row-menu {
+  position: absolute;
+  top: 24px;
+  right: 0;
+  width: 84px;
+  background: #fff;
+  border: 1px solid #d9dfe8;
+  border-radius: 6px;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+  z-index: 22;
+}
+
+.figma-row-menu button {
+  width: 100%;
+  border: 0;
+  background: #fff;
+  text-align: left;
+  font-size: 12px;
+  padding: 7px 9px;
+  cursor: pointer;
+}
+
+.figma-row-menu button:hover {
+  background: #f3f4f6;
 }
 
 .figma-breadcrumb {

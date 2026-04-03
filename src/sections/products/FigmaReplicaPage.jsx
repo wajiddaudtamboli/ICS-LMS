@@ -110,6 +110,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
   const [insertTab, setInsertTab] = useState("Upload");
   const [driveTab, setDriveTab] = useState("My Drive");
   const [selectedQuestionRows, setSelectedQuestionRows] = useState(["q1", "q2"]);
+  const [openMockRowMenuId, setOpenMockRowMenuId] = useState(null);
 
   const notify = (message) => onToast?.(message);
 
@@ -143,6 +144,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
     setShowSelectedQuestions(false);
     setShowPoolPicker(false);
     setShowFormDim(false);
+    setOpenMockRowMenuId(null);
   };
 
   const applyScreen = (screenId) => {
@@ -304,10 +306,21 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
                   <td>
                     <span className={`figma-status ${statusClassName(row.status)}`}>{row.status}</span>
                   </td>
-                  <td className="figma-actions-cell">
-                    <button type="button" className="kebab" onClick={openBuilder}>
+                  <td className={openMockRowMenuId === row.id ? "figma-actions-cell menu-open" : "figma-actions-cell"}>
+                    <button
+                      type="button"
+                      className="kebab"
+                      onClick={() => setOpenMockRowMenuId((prev) => (prev === row.id ? null : row.id))}
+                    >
                       ⋮
                     </button>
+                    {openMockRowMenuId === row.id && (
+                      <div className="figma-row-menu">
+                        <button type="button" onClick={() => { openBuilder(); setOpenMockRowMenuId(null); }}>View</button>
+                        <button type="button" onClick={() => { setShowCreateModal(true); setOpenMockRowMenuId(null); }}>Edit</button>
+                        <button type="button" onClick={() => { notify("Mock test deleted"); setOpenMockRowMenuId(null); }}>Delete</button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

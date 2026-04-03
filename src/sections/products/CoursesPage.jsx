@@ -304,7 +304,7 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
                     <td>{row.enrollments}</td>
                     <td>{row.revenue}</td>
                     <td>{row.updated}</td>
-                    <td className="actions-cell">
+                    <td className={openRowMenuId === row.id ? "actions-cell menu-open" : "actions-cell"}>
                       <button
                         type="button"
                         className="kebab-btn"

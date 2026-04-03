@@ -247,6 +247,10 @@
   text-align: center;
 }
 
+.actions-cell.menu-open {
+  z-index: 30;
+}
+
 .kebab-btn {
   border: 0;
   background: transparent;

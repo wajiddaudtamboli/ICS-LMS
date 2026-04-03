@@ -252,7 +252,7 @@ function LiveClassesPage({ onToast, searchQuery = "" }) {
                     <td>
                       <span className={`live-status ${statusClassName(row.status)}`}>{row.status}</span>
                     </td>
-                    <td className="actions-cell">
+                    <td className={openRowMenuId === row.id ? "actions-cell menu-open" : "actions-cell"}>
                       <button
                         type="button"
                         className="kebab-btn"
