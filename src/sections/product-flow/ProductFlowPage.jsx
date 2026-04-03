@@ -44,7 +44,7 @@ function ProductFlowPage({ onToast, onOpenSection }) {
       <section className="pf-section">
         <div className="pf-section-head">
           <h3>Complete Your Setup</h3>
-          <span>{completedCount} of {steps.length} completed</span>
+          <span className="pf-completed-pill">{completedCount} of {steps.length} completed</span>
         </div>
         <div className="pf-progress-track">
           <div className="pf-progress-fill" style={{ width: `${progress}%` }} />
@@ -53,11 +53,18 @@ function ProductFlowPage({ onToast, onOpenSection }) {
         <div className="pf-steps-grid">
           {steps.map((step) => (
             <div key={step.id} className={`pf-step-card ${step.completed ? "done" : ""}`}>
-              <div className="pf-step-title">{step.id}. {step.title}</div>
+              <div className="pf-step-title">
+                <span className={`pf-step-badge ${step.completed ? "done" : ""}`}>
+                  {step.completed ? "✓" : step.id}
+                </span>
+                <span>{step.title}</span>
+              </div>
               <p>{step.description}</p>
-              <button type="button" disabled={step.completed} onClick={() => completeStep(step.id)}>
-                {step.completed ? "Completed" : "Start"}
-              </button>
+              {!step.completed ? (
+                <button type="button" onClick={() => completeStep(step.id)}>
+                  Start →
+                </button>
+              ) : null}
             </div>
           ))}
         </div>

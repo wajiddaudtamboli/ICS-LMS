@@ -200,6 +200,9 @@ function CommunityPage() {
   const [toast, setToast] = useState("");
   const [communityImagePreview, setCommunityImagePreview] = useState("");
   const [coverImagePreview, setCoverImagePreview] = useState("");
+  const [communityTitle, setCommunityTitle] = useState("");
+  const [seoDescription, setSeoDescription] = useState("");
+  const [detailedDescription, setDetailedDescription] = useState("");
   const toastTimerRef = useRef(null);
   const nameInputRef = useRef(null);
   const imageInputRef = useRef(null);
@@ -537,20 +540,21 @@ function CommunityPage() {
         </div>
       </aside>
 
-      <button
-        id="toggle-sidebar"
-        type="button"
-        className={!sidebarOpen ? "collapsed" : ""}
-        aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-        aria-controls="community-sidebar"
-        aria-expanded={sidebarOpen}
-        onClick={toggleSidebar}
-      >
-        {sidebarOpen ? "<" : ">"}
-      </button>
-
       <main className="community-main">
         <div className="community-topbar">
+          <div className="topbar-left">
+            <button
+              id="toggle-sidebar"
+              type="button"
+              className={!sidebarOpen ? "collapsed" : ""}
+              aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+              aria-controls="community-sidebar"
+              aria-expanded={sidebarOpen}
+              onClick={toggleSidebar}
+            >
+              {sidebarOpen ? "<" : ">"}
+            </button>
+          </div>
           <div className="topbar-actions-right">
             <div className="search-wrap">
               <input
@@ -560,13 +564,13 @@ function CommunityPage() {
                 onChange={(event) => setTopbarQuery(event.target.value)}
               />
             </div>
-            <button className="btn-upgrade">Upgrade</button>
-            <button className="btn-learner">View As Learner</button>
-            <button className="help-btn">
+            <button type="button" className="btn-upgrade" onClick={() => showToast("Upgrade flow coming soon")}>Upgrade</button>
+            <button type="button" className="btn-learner" onClick={() => showToast("Switched to learner preview")}>View As Learner</button>
+            <button type="button" className="help-btn" onClick={() => showToast("Help center opened") }>
               {topbarHelpIcon}
               <span>Help</span>
             </button>
-            <button className="topbar-icon" aria-label="Notifications">
+            <button type="button" className="topbar-icon" aria-label="Notifications" onClick={() => showToast("No new notifications") }>
               {topbarBellIcon}
             </button>
             <div className="avatar">J</div>
@@ -590,20 +594,60 @@ function CommunityPage() {
               </button>
 
               <div className="form-header-card">
-                <div className="breadcrumb">Communities / Create Communities</div>
+                <div className="breadcrumb">
+                  <button
+                    type="button"
+                    className="crumb-link"
+                    onClick={() => {
+                      setShowCreatePage(false);
+                      setActiveNav("community");
+                    }}
+                  >
+                    Communities
+                  </button>
+                  <span className="crumb-sep">/</span>
+                  <span className="crumb-current">Create Communities</span>
+                </div>
                 <h2>Create Community</h2>
                 <p>Create community to provide platform for open discussions and interactions</p>
               </div>
 
               <div className="form-section">
-                <label>Title*</label>
-                <input type="text" placeholder="Title" maxLength={60} />
+                <div className="field-label-row">
+                  <label>Title*</label>
+                  <span className="field-count">{communityTitle.length}/60</span>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Title"
+                  maxLength={60}
+                  value={communityTitle}
+                  onChange={(event) => setCommunityTitle(event.target.value)}
+                />
 
-                <label>SEO Description</label>
-                <textarea placeholder="Enter SEO description" rows={4} maxLength={60} />
+                <div className="field-label-row">
+                  <label>SEO Description</label>
+                  <span className="field-count">{seoDescription.length}/60</span>
+                </div>
+                <textarea
+                  placeholder="Enter SEO description"
+                  rows={4}
+                  maxLength={60}
+                  value={seoDescription}
+                  onChange={(event) => setSeoDescription(event.target.value)}
+                />
 
-                <label>Detailed Description*</label>
-                <textarea placeholder="Write short description" rows={4} maxLength={60} />
+                <div className="field-label-row">
+                  <label>Detailed Description*</label>
+                  <span className="field-count">{detailedDescription.length}/60</span>
+                </div>
+                <textarea
+                  placeholder="Write short description"
+                  rows={4}
+                  maxLength={60}
+                  value={detailedDescription}
+                  onChange={(event) => setDetailedDescription(event.target.value)}
+                />
               </div>
 
               <div className="form-section">

@@ -84,10 +84,18 @@ function MockTestPage({ onToast, searchQuery = "" }) {
     onToast?.("Mock test builder opened");
   };
 
+  const notify = (message) => onToast?.(message);
+
   if (mode === "builder") {
     return (
       <div className="mock-test-page">
-        <div className="mock-breadcrumb">Mock Test / Create Mock Test</div>
+        <div className="mock-breadcrumb">
+          <button type="button" className="crumb-link" onClick={() => window.history.back()}>
+            Mock Test
+          </button>
+          <span className="crumb-sep">/</span>
+          <span className="crumb-current">Create Mock Test</span>
+        </div>
 
         <section className="mock-builder-card">
           <div className="mock-builder-head">
@@ -96,8 +104,8 @@ function MockTestPage({ onToast, searchQuery = "" }) {
               <h2>Research Writing & Use of AI</h2>
             </div>
             <div className="mock-builder-tools">
-              <button type="button">⌄</button>
-              <button type="button">↻</button>
+              <button type="button" onClick={() => notify("Section options opened")}>⌄</button>
+              <button type="button" onClick={() => { setSelectedCount(0); notify("Builder reset"); }}>↻</button>
               <button type="button" onClick={() => setShowActionMenu((prev) => !prev)}>⚙</button>
             </div>
           </div>
@@ -128,7 +136,7 @@ function MockTestPage({ onToast, searchQuery = "" }) {
                     <span>{idx + 1}. How many videos are allowed in one Lesson</span>
                     <span>#Course</span>
                     <span className="difficulty">Easy</span>
-                    <button type="button">•••</button>
+                    <button type="button" onClick={() => notify(`Question ${idx + 1} actions opened`)}>•••</button>
                   </div>
                 ))}
               </>
@@ -140,9 +148,9 @@ function MockTestPage({ onToast, searchQuery = "" }) {
               <button type="button" onClick={() => { setShowMcqDesign(true); setShowActionMenu(false); }}>View All Questions</button>
               <button type="button" onClick={() => { setShowMcqDesign(true); setShowActionMenu(false); }}>Export Questions</button>
               <button type="button" onClick={() => { setShowMcqDesign(true); setShowActionMenu(false); }}>Import</button>
-              <button type="button">Quiz Instructions</button>
-              <button type="button">Test Attachments</button>
-              <button type="button">Questions Group</button>
+              <button type="button" onClick={() => { setShowActionMenu(false); notify("Quiz instructions opened"); }}>Quiz Instructions</button>
+              <button type="button" onClick={() => { setShowActionMenu(false); notify("Test attachments opened"); }}>Test Attachments</button>
+              <button type="button" onClick={() => { setShowActionMenu(false); notify("Questions group opened"); }}>Questions Group</button>
             </div>
           )}
         </section>
@@ -190,8 +198,8 @@ function MockTestPage({ onToast, searchQuery = "" }) {
               <p>Only the questions that are not imported into the test will be displayed here</p>
               <div className="mcq-toolbar">
                 <input placeholder="Search by question Details" />
-                <button type="button">⎚</button>
-                <button type="button">SELECT COLUMNS</button>
+                <button type="button" onClick={() => notify("Grid view toggled")}>⎚</button>
+                <button type="button" onClick={() => notify("Column picker opened")}>SELECT COLUMNS</button>
               </div>
               <table>
                 <thead>
@@ -260,41 +268,43 @@ function MockTestPage({ onToast, searchQuery = "" }) {
 
       <section className="live-toolbar">
         <input value={search || searchQuery} onChange={(event) => setSearch(event.target.value)} placeholder="Search" />
-        <button type="button" className="icon-btn">📊</button>
-        <button type="button" className="icon-btn">⚙</button>
-        <button type="button" className="icon-btn">👜</button>
+        <button type="button" className="icon-btn" onClick={() => notify("Analytics filter opened")}>📊</button>
+        <button type="button" className="icon-btn" onClick={() => notify("Settings opened")}>⚙</button>
+        <button type="button" className="icon-btn" onClick={() => notify("Tools opened")}>👜</button>
       </section>
 
       <section className="live-table-card">
-        <table className="live-table">
-          <thead>
-            <tr>
-              <th>Course Name</th>
-              <th>Instructor</th>
-              <th>Date & Time</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRows.map((row) => (
-              <tr key={row.id}>
-                <td>
-                  <strong>{row.courseName}</strong>
-                  <span>{row.note}</span>
-                </td>
-                <td>{row.instructor}</td>
-                <td>{row.dateTime}</td>
-                <td>
-                  <span className={`live-status ${statusClassName(row.status)}`}>{row.status}</span>
-                </td>
-                <td>
-                  <button type="button" className="kebab-btn" onClick={startBuilder}>⋮</button>
-                </td>
+        <div className="live-table-scroll">
+          <table className="live-table">
+            <thead>
+              <tr>
+                <th>Course Name</th>
+                <th>Instructor</th>
+                <th>Date & Time</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredRows.map((row) => (
+                <tr key={row.id}>
+                  <td>
+                    <strong>{row.courseName}</strong>
+                    <span>{row.note}</span>
+                  </td>
+                  <td>{row.instructor}</td>
+                  <td>{row.dateTime}</td>
+                  <td>
+                    <span className={`live-status ${statusClassName(row.status)}`}>{row.status}</span>
+                  </td>
+                  <td className="mock-actions-cell">
+                    <button type="button" className="kebab-btn" onClick={startBuilder}>⋮</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       {showCreateSeriesModal && (
@@ -305,20 +315,22 @@ function MockTestPage({ onToast, searchQuery = "" }) {
             <div className="series-body">
               <h4>Create Courses</h4>
               <p>Start creating a new test series</p>
-              <label>
-                Title*
-                <input placeholder="Enter Mock Test Title" />
-              </label>
-              <label>
-                Price
-                <input placeholder="Price" />
-              </label>
-              <label><input type="checkbox" /> Make this a free mock test</label>
-              <div className="quiz-types-inline">
-                <label><input type="radio" name="qt" defaultChecked /> Online quiz</label>
-                <label><input type="radio" name="qt" /> Offline quiz</label>
+              <div className="series-grid-two">
+                <label>
+                  Title*
+                  <input placeholder="Enter Mock Test Title" />
+                </label>
+                <label>
+                  Price
+                  <input placeholder="Price" />
+                </label>
               </div>
-              <label>
+              <label className="series-checkbox"><input type="checkbox" /> Make this a free mock test</label>
+              <div className="quiz-types-inline">
+                <label className="quiz-type-option"><input type="radio" name="qt" defaultChecked /> Online quiz</label>
+                <label className="quiz-type-option"><input type="radio" name="qt" /> Offline quiz</label>
+              </div>
+              <label className="template-field">
                 Select Template
                 <select defaultValue="Select"><option>Select</option></select>
               </label>

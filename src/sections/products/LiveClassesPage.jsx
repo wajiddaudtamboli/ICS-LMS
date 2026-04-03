@@ -56,6 +56,9 @@ function LiveClassesPage({ onToast, searchQuery = "" }) {
   const [showNotificationUnitMenu, setShowNotificationUnitMenu] = useState(false);
   const [showTimeZoneDialog, setShowTimeZoneDialog] = useState(false);
   const [showSendLikeDialog, setShowSendLikeDialog] = useState(false);
+  const [recurrenceLabel, setRecurrenceLabel] = useState("Does not Repeat");
+  const [notificationType, setNotificationType] = useState("Notification");
+  const [notificationUnit, setNotificationUnit] = useState("minutes");
 
   const activeSearchQuery = (classesSearchQuery.trim() || searchQuery.trim()).toLowerCase();
 
@@ -101,10 +104,25 @@ function LiveClassesPage({ onToast, searchQuery = "" }) {
     onToast?.("Live class removed");
   };
 
+  const closeEditor = () => {
+    setShowEditorModal(false);
+    setShowRecurrenceMenu(false);
+    setShowNotificationTypeMenu(false);
+    setShowNotificationUnitMenu(false);
+    setShowTimeZoneDialog(false);
+    setShowSendLikeDialog(false);
+  };
+
   if (showCreateForm) {
     return (
       <div className="live-classes-page">
-        <div className="live-breadcrumb">Product / Live Classes</div>
+        <div className="live-breadcrumb">
+          <button type="button" className="crumb-link" onClick={() => window.history.back()}>
+            Product
+          </button>
+          <span className="crumb-sep">/</span>
+          <span className="crumb-current">Live Classes</span>
+        </div>
 
         <section className="live-form-card">
           <h2>Live Class</h2>
@@ -199,9 +217,9 @@ function LiveClassesPage({ onToast, searchQuery = "" }) {
           value={classesSearchQuery || searchQuery}
           onChange={(event) => setClassesSearchQuery(event.target.value)}
         />
-        <button type="button" className="icon-btn">user</button>
-        <button type="button" className="icon-btn">slider</button>
-        <button type="button" className="icon-btn">calendar</button>
+        <button type="button" className="icon-btn" onClick={() => onToast?.("User filter opened")}>user</button>
+        <button type="button" className="icon-btn" onClick={() => onToast?.("Advanced filters opened")}>slider</button>
+        <button type="button" className="icon-btn" onClick={() => onToast?.("Date filter opened")}>calendar</button>
       </section>
 
       {isEmpty ? (
@@ -211,58 +229,60 @@ function LiveClassesPage({ onToast, searchQuery = "" }) {
         </section>
       ) : (
         <section className="live-table-card">
-          <table className="live-table">
-            <thead>
-              <tr>
-                <th>Course Name</th>
-                <th>Instructor</th>
-                <th>Date & Time</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tableRows.map((row) => (
-                <tr key={row.id}>
-                  <td>
-                    <strong>{row.courseName}</strong>
-                    <span>{row.note}</span>
-                  </td>
-                  <td>{row.instructor}</td>
-                  <td>{row.dateTime}</td>
-                  <td>
-                    <span className={`live-status ${statusClassName(row.status)}`}>{row.status}</span>
-                  </td>
-                  <td className="actions-cell">
-                    <button
-                      type="button"
-                      className="kebab-btn"
-                      onClick={() => setOpenRowMenuId((prev) => (prev === row.id ? null : row.id))}
-                    >
-                      ⋮
-                    </button>
-                    {openRowMenuId === row.id && (
-                      <div className="row-menu">
-                        <button type="button" onClick={() => { openEditor(); setOpenRowMenuId(null); }}>Edit</button>
-                        <button type="button" onClick={() => { setShowSendLikeDialog(true); openEditor(); setOpenRowMenuId(null); }}>Send Like</button>
-                        <button type="button" onClick={removeOneClass}>Delete</button>
-                      </div>
-                    )}
-                  </td>
+          <div className="live-table-scroll">
+            <table className="live-table">
+              <thead>
+                <tr>
+                  <th>Course Name</th>
+                  <th>Instructor</th>
+                  <th>Date & Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {tableRows.map((row) => (
+                  <tr key={row.id}>
+                    <td>
+                      <strong>{row.courseName}</strong>
+                      <span>{row.note}</span>
+                    </td>
+                    <td>{row.instructor}</td>
+                    <td>{row.dateTime}</td>
+                    <td>
+                      <span className={`live-status ${statusClassName(row.status)}`}>{row.status}</span>
+                    </td>
+                    <td className="actions-cell">
+                      <button
+                        type="button"
+                        className="kebab-btn"
+                        onClick={() => setOpenRowMenuId((prev) => (prev === row.id ? null : row.id))}
+                      >
+                        ⋮
+                      </button>
+                      {openRowMenuId === row.id && (
+                        <div className="row-menu">
+                          <button type="button" onClick={() => { openEditor(); setOpenRowMenuId(null); }}>Edit</button>
+                          <button type="button" onClick={() => { setShowSendLikeDialog(true); openEditor(); setOpenRowMenuId(null); }}>Send Like</button>
+                          <button type="button" onClick={removeOneClass}>Delete</button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       )}
 
       {showEditorModal && (
         <div className="overlay" onClick={(event) => event.target.classList.contains("overlay") && setShowEditorModal(false)}>
           <div className="live-editor-modal">
-            <button type="button" className="close-btn" onClick={() => setShowEditorModal(false)}>×</button>
+            <button type="button" className="close-btn" onClick={closeEditor}>×</button>
             <div className="live-editor-head">
               <h3>Live Class</h3>
-              <button type="button" className="primary">Save</button>
+              <button type="button" className="primary" onClick={() => onToast?.("Live class changes saved")}>Save</button>
             </div>
 
             <div className="live-editor-grid-row">
@@ -276,14 +296,28 @@ function LiveClassesPage({ onToast, searchQuery = "" }) {
 
             <div className="live-editor-check-row">
               <label><input type="checkbox" /> All Day</label>
-              <button type="button" className="ghost" onClick={() => setShowRecurrenceMenu((prev) => !prev)}>Does not Repeat</button>
+              <button type="button" className="-ghost" onClick={() => setShowRecurrenceMenu((prev) => !prev)}>{recurrenceLabel}</button>
               {showRecurrenceMenu && (
                 <div className="mini-menu repeat-menu">
-                  <button type="button">Does not Repeat</button>
-                  <button type="button">Daily</button>
-                  <button type="button">Weekly on Friday</button>
-                  <button type="button">Every week Day</button>
-                  <button type="button">Custom</button>
+                  {[
+                    "Does not Repeat",
+                    "Daily",
+                    "Weekly on Friday",
+                    "Every week Day",
+                    "Custom"
+                  ].map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => {
+                        setRecurrenceLabel(option);
+                        setShowRecurrenceMenu(false);
+                        onToast?.(`Recurrence set to ${option}`);
+                      }}
+                    >
+                      {option}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
@@ -306,36 +340,64 @@ function LiveClassesPage({ onToast, searchQuery = "" }) {
                     <div className="field-like">Online</div>
 
                     <div className="notification-row">
-                      <button type="button" className="ghost" onClick={() => setShowNotificationTypeMenu((prev) => !prev)}>Notification</button>
+                      <button type="button" className="ghost" onClick={() => setShowNotificationTypeMenu((prev) => !prev)}>{notificationType}</button>
                       <input value="30" readOnly />
-                      <button type="button" className="ghost" onClick={() => setShowNotificationUnitMenu((prev) => !prev)}>minutes</button>
-                      <button type="button" className="ghost">×</button>
+                      <button type="button" className="ghost" onClick={() => setShowNotificationUnitMenu((prev) => !prev)}>{notificationUnit}</button>
+                      <button type="button" className="ghost" onClick={() => onToast?.("Notification removed")}>×</button>
 
                       {showNotificationTypeMenu && (
                         <div className="mini-menu notify-type-menu">
-                          <button type="button">Email</button>
-                          <button type="button">WhatsApp</button>
-                          <button type="button">Call</button>
-                          <button type="button">All</button>
+                          {[
+                            "Email",
+                            "WhatsApp",
+                            "Call",
+                            "All"
+                          ].map((option) => (
+                            <button
+                              key={option}
+                              type="button"
+                              onClick={() => {
+                                setNotificationType(option);
+                                setShowNotificationTypeMenu(false);
+                                onToast?.(`Notification type set to ${option}`);
+                              }}
+                            >
+                              {option}
+                            </button>
+                          ))}
                         </div>
                       )}
 
                       {showNotificationUnitMenu && (
                         <div className="mini-menu notify-unit-menu">
-                          <button type="button">Minutes</button>
-                          <button type="button">Hours</button>
-                          <button type="button">Day</button>
-                          <button type="button">Weeks</button>
+                          {[
+                            "Minutes",
+                            "Hours",
+                            "Day",
+                            "Weeks"
+                          ].map((option) => (
+                            <button
+                              key={option}
+                              type="button"
+                              onClick={() => {
+                                setNotificationUnit(option.toLowerCase());
+                                setShowNotificationUnitMenu(false);
+                                onToast?.(`Notification unit set to ${option}`);
+                              }}
+                            >
+                              {option}
+                            </button>
+                          ))}
                         </div>
                       )}
                     </div>
 
-                    <button type="button" className="add-link">Add notification</button>
+                    <button type="button" className="add-link" onClick={() => onToast?.("Additional notification added")}>Add notification</button>
 
                     <div className="small-select-row">
-                      <button type="button" className="ghost">Digital Marketing</button>
-                      <button type="button" className="ghost">Busy</button>
-                      <button type="button" className="ghost">Default Visibility</button>
+                      <button type="button" className="ghost" onClick={() => onToast?.("Category picker opened")}>Digital Marketing</button>
+                      <button type="button" className="ghost" onClick={() => onToast?.("Availability set to busy")}>Busy</button>
+                      <button type="button" className="ghost" onClick={() => onToast?.("Visibility settings opened")}>Default Visibility</button>
                     </div>
 
                     <div className="editor-box">
@@ -375,7 +437,7 @@ function LiveClassesPage({ onToast, searchQuery = "" }) {
             </div>
 
             <div className="editor-save-row">
-              <button type="button" className="primary">Save</button>
+              <button type="button" className="primary" onClick={() => onToast?.("Event details saved")}>Save</button>
             </div>
 
             {showTimeZoneDialog && (
@@ -387,9 +449,18 @@ function LiveClassesPage({ onToast, searchQuery = "" }) {
                   <div className="tz-box">(GMT+05:30) India Standard Time - Kolkata</div>
                   <div className="tz-box">(GMT+05:30) India Standard Time - Kolkata</div>
                   <div className="inner-actions">
-                    <button type="button" className="link">Use current time zone</button>
+                    <button type="button" className="link" onClick={() => onToast?.("Current time zone selected")}>Use current time zone</button>
                     <button type="button" className="link" onClick={() => setShowTimeZoneDialog(false)}>Cancel</button>
-                    <button type="button" className="primary" onClick={() => setShowTimeZoneDialog(false)}>Ok</button>
+                    <button
+                      type="button"
+                      className="primary"
+                      onClick={() => {
+                        setShowTimeZoneDialog(false);
+                        onToast?.("Time zone updated");
+                      }}
+                    >
+                      Ok
+                    </button>
                   </div>
                 </div>
               </div>
@@ -401,7 +472,16 @@ function LiveClassesPage({ onToast, searchQuery = "" }) {
                   <button type="button" className="close-btn" onClick={() => setShowSendLikeDialog(false)}>×</button>
                   <p>Send like to every one</p>
                   <div className="inner-actions">
-                    <button type="button" className="primary" onClick={() => setShowSendLikeDialog(false)}>Send</button>
+                    <button
+                      type="button"
+                      className="primary"
+                      onClick={() => {
+                        setShowSendLikeDialog(false);
+                        onToast?.("Likes sent to attendees");
+                      }}
+                    >
+                      Send
+                    </button>
                   </div>
                 </div>
               </div>

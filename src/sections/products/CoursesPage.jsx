@@ -11,6 +11,14 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
   const [showLessonStructure, setShowLessonStructure] = useState(false);
   const [showLessonContent, setShowLessonContent] = useState(false);
   const [showSectionMenu, setShowSectionMenu] = useState(false);
+  const [courseSettings, setCourseSettings] = useState({
+    certificates: false,
+    comments: true,
+    drip: false,
+    prerequisites: false
+  });
+
+  const notify = (message) => onToast?.(message);
 
   const metricCards = [
     { label: "Total Course", value: "27" },
@@ -63,7 +71,7 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
               <option>Quiz</option>
             </select>
             <input value="5:30 hr" readOnly />
-            <button type="button" className="mini-danger">🗑</button>
+            <button type="button" className="mini-danger" onClick={() => notify("Section row removed")}>🗑</button>
           </div>
           <div className="content-row">
             <span>⋮</span>
@@ -74,10 +82,10 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
               <option>Quiz</option>
             </select>
             <input value="" readOnly />
-            <button type="button" className="mini-danger">🗑</button>
+            <button type="button" className="mini-danger" onClick={() => notify("Section row removed")}>🗑</button>
           </div>
           <div className="content-actions">
-            <button type="button">+ Add Section</button>
+            <button type="button" onClick={() => notify("New section added")}>+ Add Section</button>
           </div>
           <div className="resource-box">
             <h5>Course Resources</h5>
@@ -96,10 +104,42 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
         <div className="create-tab-body">
           <div className="settings-card">
             <h5>COURSE SETTINGS</h5>
-            <div className="settings-row"><span>Enable Certificates</span><div className="toggle" /></div>
-            <div className="settings-row"><span>Allow Comments</span><div className="toggle on" /></div>
-            <div className="settings-row"><span>Drip Content</span><div className="toggle" /></div>
-            <div className="settings-row"><span>Course Prerequisites</span><div className="toggle" /></div>
+            <div className="settings-row">
+              <span>Enable Certificates</span>
+              <button
+                type="button"
+                className={`toggle ${courseSettings.certificates ? "on" : ""}`}
+                aria-pressed={courseSettings.certificates}
+                onClick={() => setCourseSettings((prev) => ({ ...prev, certificates: !prev.certificates }))}
+              />
+            </div>
+            <div className="settings-row">
+              <span>Allow Comments</span>
+              <button
+                type="button"
+                className={`toggle ${courseSettings.comments ? "on" : ""}`}
+                aria-pressed={courseSettings.comments}
+                onClick={() => setCourseSettings((prev) => ({ ...prev, comments: !prev.comments }))}
+              />
+            </div>
+            <div className="settings-row">
+              <span>Drip Content</span>
+              <button
+                type="button"
+                className={`toggle ${courseSettings.drip ? "on" : ""}`}
+                aria-pressed={courseSettings.drip}
+                onClick={() => setCourseSettings((prev) => ({ ...prev, drip: !prev.drip }))}
+              />
+            </div>
+            <div className="settings-row">
+              <span>Course Prerequisites</span>
+              <button
+                type="button"
+                className={`toggle ${courseSettings.prerequisites ? "on" : ""}`}
+                aria-pressed={courseSettings.prerequisites}
+                onClick={() => setCourseSettings((prev) => ({ ...prev, prerequisites: !prev.prerequisites }))}
+              />
+            </div>
           </div>
           <div className="settings-card">
             <h4>Research Writing & Use of AI</h4>
@@ -237,53 +277,55 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
 
       <section className="courses-activity-card">
         <h3>Recent Activity</h3>
-        <table className="courses-table">
-          <thead>
-            <tr>
-              <th>Course</th>
-              <th>Status</th>
-              <th>Enrollments</th>
-              <th>Revenue</th>
-              <th>Last Updated</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRows.length === 0 ? (
+        <div className="courses-table-scroll">
+          <table className="courses-table">
+            <thead>
               <tr>
-                <td colSpan={6}>No courses found.</td>
+                <th>Course</th>
+                <th>Status</th>
+                <th>Enrollments</th>
+                <th>Revenue</th>
+                <th>Last Updated</th>
+                <th>Actions</th>
               </tr>
-            ) : (
-              filteredRows.map((row) => (
-                <tr key={row.id}>
-                  <td>{row.course}</td>
-                  <td>
-                    <span className={`status-pill ${row.status === "Published" ? "published" : "draft"}`}>{row.status}</span>
-                  </td>
-                  <td>{row.enrollments}</td>
-                  <td>{row.revenue}</td>
-                  <td>{row.updated}</td>
-                  <td className="actions-cell">
-                    <button
-                      type="button"
-                      className="kebab-btn"
-                      onClick={() => setOpenRowMenuId((prev) => (prev === row.id ? null : row.id))}
-                    >
-                      ⋮
-                    </button>
-                    {openRowMenuId === row.id && (
-                      <div className="row-menu">
-                        <button type="button" onClick={() => { setShowLessonStructure(true); setOpenRowMenuId(null); }}>View</button>
-                        <button type="button" onClick={() => { setShowLessonContent(true); setOpenRowMenuId(null); }}>Edit</button>
-                        <button type="button" onClick={() => { setOpenRowMenuId(null); onToast?.("Course deleted"); }}>Delete</button>
-                      </div>
-                    )}
-                  </td>
+            </thead>
+            <tbody>
+              {filteredRows.length === 0 ? (
+                <tr>
+                  <td colSpan={6}>No courses found.</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                filteredRows.map((row) => (
+                  <tr key={row.id}>
+                    <td>{row.course}</td>
+                    <td>
+                      <span className={`status-pill ${row.status === "Published" ? "published" : "draft"}`}>{row.status}</span>
+                    </td>
+                    <td>{row.enrollments}</td>
+                    <td>{row.revenue}</td>
+                    <td>{row.updated}</td>
+                    <td className="actions-cell">
+                      <button
+                        type="button"
+                        className="kebab-btn"
+                        onClick={() => setOpenRowMenuId((prev) => (prev === row.id ? null : row.id))}
+                      >
+                        ⋮
+                      </button>
+                      {openRowMenuId === row.id && (
+                        <div className="row-menu">
+                          <button type="button" onClick={() => { setShowLessonStructure(true); setOpenRowMenuId(null); }}>View</button>
+                          <button type="button" onClick={() => { setShowLessonContent(true); setOpenRowMenuId(null); }}>Edit</button>
+                          <button type="button" onClick={() => { setOpenRowMenuId(null); onToast?.("Course deleted"); }}>Delete</button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       {showCreateModal && (
@@ -299,7 +341,16 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
             </div>
             {renderCreateTab()}
             <div className="modal-actions">
-              <button type="button" className="primary">Save & Publish</button>
+              <button
+                type="button"
+                className="primary"
+                onClick={() => {
+                  notify("Course saved and published");
+                  setShowCreateModal(false);
+                }}
+              >
+                Save & Publish
+              </button>
               <button type="button" className="secondary" onClick={() => setShowCreateModal(false)}>Preview</button>
             </div>
           </div>
@@ -311,7 +362,7 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
           <header className="builder-topbar">
             <img src="/image.png" alt="ICS" />
             <div className="builder-actions">
-              <button type="button">Publish</button>
+              <button type="button" onClick={() => notify("Lesson structure published")}>Publish</button>
               <div className="avatar-dot">J</div>
             </div>
           </header>
@@ -330,16 +381,16 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
               </div>
               {showSectionMenu && (
                 <div className="section-menu">
-                  <button type="button">Edit Section</button>
-                  <button type="button">Add Section</button>
-                  <button type="button">Add Lesson</button>
-                  <button type="button">Reorder Section</button>
-                  <button type="button">Move to Top</button>
-                  <button type="button">Move to Down</button>
-                  <button type="button">Delete</button>
+                  <button type="button" onClick={() => { setShowSectionMenu(false); notify("Edit section opened"); }}>Edit Section</button>
+                  <button type="button" onClick={() => { setShowSectionMenu(false); notify("Section added"); }}>Add Section</button>
+                  <button type="button" onClick={() => { setShowSectionMenu(false); notify("Lesson added"); }}>Add Lesson</button>
+                  <button type="button" onClick={() => { setShowSectionMenu(false); notify("Reorder section enabled"); }}>Reorder Section</button>
+                  <button type="button" onClick={() => { setShowSectionMenu(false); notify("Section moved to top"); }}>Move to Top</button>
+                  <button type="button" onClick={() => { setShowSectionMenu(false); notify("Section moved down"); }}>Move to Down</button>
+                  <button type="button" onClick={() => { setShowSectionMenu(false); notify("Section deleted"); }}>Delete</button>
                 </div>
               )}
-              <button type="button" className="add-question">+ Add Question</button>
+              <button type="button" className="add-question" onClick={() => notify("Question added")}>+ Add Question</button>
             </div>
             <button type="button" className="close-full" onClick={() => setShowLessonStructure(false)}>Close</button>
           </main>
@@ -351,7 +402,7 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
           <header className="builder-topbar">
             <img src="/image.png" alt="ICS" />
             <div className="builder-actions">
-              <button type="button">Publish</button>
+              <button type="button" onClick={() => notify("Lesson content published")}>Publish</button>
               <div className="avatar-dot">J</div>
             </div>
           </header>
@@ -372,7 +423,7 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
               </div>
               <div className="preview-foot">
                 <span>Content uploaded successfully</span>
-                <button type="button" className="remove-btn">Remove</button>
+                <button type="button" className="remove-btn" onClick={() => notify("Attachment removed")}>Remove</button>
               </div>
             </section>
             <section className="attachment-panel">
@@ -380,7 +431,7 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
               <div className="resource-drop">
                 <div className="resource-icon">☁</div>
                 <p>Drag & Drop files here, or</p>
-                <button type="button" className="upload-btn">Upload File</button>
+                <button type="button" className="upload-btn" onClick={() => notify("File upload picker opened")}>Upload File</button>
               </div>
             </section>
             <button type="button" className="close-full" onClick={() => setShowLessonContent(false)}>Close</button>

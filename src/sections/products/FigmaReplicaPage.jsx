@@ -105,6 +105,13 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
   const [formMode, setFormMode] = useState("builder");
   const [formVariant, setFormVariant] = useState("capital");
   const [showFormDim, setShowFormDim] = useState(false);
+  const [selectedQuestionType, setSelectedQuestionType] = useState("Numerical");
+  const [formTab, setFormTab] = useState("Questions");
+  const [insertTab, setInsertTab] = useState("Upload");
+  const [driveTab, setDriveTab] = useState("My Drive");
+  const [selectedQuestionRows, setSelectedQuestionRows] = useState(["q1", "q2"]);
+
+  const notify = (message) => onToast?.(message);
 
   const resolvedSearch = searchQuery.trim().toLowerCase();
 
@@ -124,7 +131,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
   const openBuilder = () => {
     setMockMode("builder");
     setShowCreateModal(false);
-    onToast?.("Mock test builder opened");
+    notify("Mock test builder opened");
   };
 
   const resetOverlays = () => {
@@ -267,51 +274,59 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
       <section className="figma-toolbar-card">
         <input placeholder="Search" />
         <div className="figma-tool-btns">
-          <button type="button">◫</button>
-          <button type="button">⚙</button>
-          <button type="button">⌁</button>
+          <button type="button" onClick={() => notify("Layout options opened")}>◫</button>
+          <button type="button" onClick={() => notify("Settings opened")}>⚙</button>
+          <button type="button" onClick={() => notify("More tools opened")}>⌁</button>
         </div>
       </section>
 
       <section className="figma-table-card">
-        <table>
-          <thead>
-            <tr>
-              <th>Course Name</th>
-              <th>Instructor</th>
-              <th>Date & Time</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRows.map((row) => (
-              <tr key={row.id}>
-                <td>
-                  <strong>{row.courseName}</strong>
-                  <span>{row.note}</span>
-                </td>
-                <td>{row.instructor}</td>
-                <td>{row.dateTime}</td>
-                <td>
-                  <span className={`figma-status ${statusClassName(row.status)}`}>{row.status}</span>
-                </td>
-                <td>
-                  <button type="button" className="kebab" onClick={openBuilder}>
-                    ⋮
-                  </button>
-                </td>
+        <div className="figma-table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Course Name</th>
+                <th>Instructor</th>
+                <th>Date & Time</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredRows.map((row) => (
+                <tr key={row.id}>
+                  <td>
+                    <strong>{row.courseName}</strong>
+                    <span>{row.note}</span>
+                  </td>
+                  <td>{row.instructor}</td>
+                  <td>{row.dateTime}</td>
+                  <td>
+                    <span className={`figma-status ${statusClassName(row.status)}`}>{row.status}</span>
+                  </td>
+                  <td className="figma-actions-cell">
+                    <button type="button" className="kebab" onClick={openBuilder}>
+                      ⋮
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );
 
   const renderCreateInline = () => (
     <div className="figma-screen-card">
-      <div className="figma-breadcrumb">Mock Test / Create Mock Test</div>
+      <div className="figma-breadcrumb">
+        <button type="button" className="crumb-link" onClick={() => window.history.back()}>
+          Mock Test
+        </button>
+        <span className="crumb-sep">/</span>
+        <span className="crumb-current">Create Mock Test</span>
+      </div>
       <section className="builder-shell create-inline-shell">
         <h3>Create Test Series</h3>
         <p>Start creating a new test series</p>
@@ -344,7 +359,13 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
 
   const renderMockBuilder = () => (
     <div className="figma-screen-card">
-      <div className="figma-breadcrumb">Mock Test / Create Mock Test</div>
+      <div className="figma-breadcrumb">
+        <button type="button" className="crumb-link" onClick={() => window.history.back()}>
+          Mock Test
+        </button>
+        <span className="crumb-sep">/</span>
+        <span className="crumb-current">Create Mock Test</span>
+      </div>
       <section className="builder-shell">
         <div className="builder-head">
           <div>
@@ -352,8 +373,17 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
             <h2>Research Writing &amp; Use of AI</h2>
           </div>
           <div className="builder-actions">
-            <button type="button">⌄</button>
-            <button type="button">↻</button>
+            <button type="button" onClick={() => setCollapsedSection((prev) => !prev)}>⌄</button>
+            <button
+              type="button"
+              onClick={() => {
+                setCollapsedSection(false);
+                setSelectedCount(0);
+                notify("Builder reset");
+              }}
+            >
+              ↻
+            </button>
             <button type="button" onClick={() => setShowQuickActions((prev) => !prev)}>⚙</button>
           </div>
         </div>
@@ -381,7 +411,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
                     <span>{index + 1}. {question}</span>
                     <span>#Course</span>
                     <span className="tag-easy">Easy</span>
-                    <button type="button">•••</button>
+                    <button type="button" onClick={() => notify(`Question ${index + 1} actions opened`)}>•••</button>
                   </div>
                 ))}
               </div>
@@ -389,16 +419,16 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
           </>
         )}
 
-        <button type="button" className="btn-add-section" onClick={() => onToast?.("Section created successfully")}>+ Add Section</button>
+        <button type="button" className="btn-add-section" onClick={() => notify("Section created successfully")}>+ Add Section</button>
 
         {showQuickActions && (
           <div className="quick-actions-menu">
             <button type="button" onClick={() => { setShowMcqDesign(true); setShowQuickActions(false); }}>View All Questions</button>
             <button type="button" onClick={() => { setShowMcqDesign(true); setShowQuickActions(false); }}>Export Questions</button>
             <button type="button" onClick={() => { setShowMcqDesign(true); setShowQuickActions(false); }}>Import</button>
-            <button type="button">Quiz Instructions</button>
-            <button type="button">Test Attachments</button>
-            <button type="button">Questions Group</button>
+            <button type="button" onClick={() => { setShowQuickActions(false); notify("Quiz instructions opened"); }}>Quiz Instructions</button>
+            <button type="button" onClick={() => { setShowQuickActions(false); notify("Test attachments opened"); }}>Test Attachments</button>
+            <button type="button" onClick={() => { setShowQuickActions(false); notify("Question grouping opened"); }}>Questions Group</button>
           </div>
         )}
       </section>
@@ -411,12 +441,26 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
         <img className="form-logo" src="/image.png" alt="ICS" />
         <div className="form-back-line">Back</div>
         <div className="form-tabs">
-          <button type="button" className="active">Questions</button>
-          <button type="button">Responses</button>
-          <button type="button">Settings</button>
+          {[
+            "Questions",
+            "Responses",
+            "Settings"
+          ].map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              className={formTab === tab ? "active" : ""}
+              onClick={() => {
+                setFormTab(tab);
+                notify(`${tab} tab opened`);
+              }}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
         <div className="form-top-actions">
-          <button type="button" className="figma-primary">Publish</button>
+          <button type="button" className="figma-primary" onClick={() => notify("Form published")}>Publish</button>
           <span className="avatar-round">J</span>
         </div>
       </div>
@@ -448,17 +492,17 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
               </div>
               {formVariant === "capital" ? (
                 <>
-                  <label><input type="radio" /> New Delhi.</label>
-                  <label><input type="radio" /> Kolhapur</label>
-                  <label><input type="radio" /> Mumbai.</label>
-                  <label><input type="radio" /> Pune.</label>
-                  <div className="question-footer-line">Required ◯</div>
+                  <label className="radio-option"><input type="radio" name="capital-city" /> New Delhi.</label>
+                  <label className="radio-option"><input type="radio" name="capital-city" /> Kolhapur</label>
+                  <label className="radio-option"><input type="radio" name="capital-city" /> Mumbai.</label>
+                  <label className="radio-option"><input type="radio" name="capital-city" /> Pune.</label>
+                  <div className="question-footer-line"><span>Required</span><span className="required-toggle" aria-hidden="true">○</span></div>
                 </>
               ) : (
                 <>
-                  <label><input type="radio" /> Option 1</label>
-                  <label><input type="radio" /> Add option or add "Other"</label>
-                  <div className="question-footer-line">Required ◯</div>
+                  <label className="radio-option"><input type="radio" name="question-option" /> Option 1</label>
+                  <label className="radio-option"><input type="radio" name="question-option" /> Add option or add "Other"</label>
+                  <div className="question-footer-line"><span>Required</span><span className="required-toggle" aria-hidden="true">○</span></div>
                 </>
               )}
             </article>
@@ -494,7 +538,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
       <div className="pool-picker-modal standalone">
         <div className="pool-search">
           <input placeholder="Search" />
-          <button type="button">⚙</button>
+          <button type="button" onClick={() => notify("Pool settings opened")}>⚙</button>
         </div>
         <div className="pool-tabs">
           {[
@@ -508,7 +552,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
         <div className="pool-title small">Pool</div>
         <div className="pool-subtitle">Today</div>
         <div className="pool-cards">
-          <button type="button" className="pool-card">
+          <button type="button" className="pool-card" onClick={() => notify("Pool selected") }>
             <div className="pool-thumb" />
             <span>Abc Pool</span>
           </button>
@@ -520,7 +564,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
   const renderInsertImage = () => (
     <div className="dialog-shell">
       <div className="insert-image-dialog">
-        <div className="dialog-head"><h3>Insert image</h3><button type="button">×</button></div>
+        <div className="dialog-head"><h3>Insert image</h3><button type="button" onClick={() => applyScreen("form-11")}>×</button></div>
         <div className="insert-tabs">
           {[
             "Upload",
@@ -529,11 +573,15 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
             "Photos",
             "Google Drive",
             "Google Images"
-          ].map((tab, idx) => <button type="button" key={tab} className={idx === 0 ? "active" : ""}>{tab}</button>)}
+          ].map((tab) => (
+            <button type="button" key={tab} className={insertTab === tab ? "active" : ""} onClick={() => setInsertTab(tab)}>
+              {tab}
+            </button>
+          ))}
         </div>
         <div className="upload-drop">
           <div className="cloud-shape" />
-          <button type="button" className="figma-primary">Browse</button>
+          <button type="button" className="figma-primary" onClick={() => notify("File picker opened")}>Browse</button>
           <p>or drag a file here</p>
         </div>
       </div>
@@ -543,20 +591,26 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
   const renderDrivePicker = () => (
     <div className="dialog-shell">
       <div className="drive-picker-dialog">
-        <div className="dialog-head"><h3>Select Form</h3><button type="button">×</button></div>
+        <div className="dialog-head"><h3>Select Form</h3><button type="button" onClick={() => applyScreen("form-11")}>×</button></div>
         <div className="drive-search"><input placeholder="Search in Drive or paste URL" /></div>
         <div className="drive-tabs">
-          <button type="button">Recent</button>
-          <button type="button" className="active">My Drive</button>
-          <button type="button">Shared with me</button>
+          {[
+            "Recent",
+            "My Drive",
+            "Shared with me"
+          ].map((tab) => (
+            <button key={tab} type="button" className={driveTab === tab ? "active" : ""} onClick={() => setDriveTab(tab)}>
+              {tab}
+            </button>
+          ))}
         </div>
         <div className="drive-row">My Drive</div>
         <div className="drive-folders">
-          <button type="button">ICS</button>
-          <button type="button">सामाजिक उद्योगजगता ...</button>
+          <button type="button" onClick={() => notify("Opened ICS folder")}>ICS</button>
+          <button type="button" onClick={() => notify("Opened shared folder")}>सामाजिक उद्योगजगता ...</button>
         </div>
         <div className="drive-files-title">Files</div>
-        <button type="button" className="drive-file-card">
+        <button type="button" className="drive-file-card" onClick={() => notify("Form selected from Drive") }>
           <div className="pool-thumb" />
           <span>Contact Information</span>
         </button>
@@ -566,22 +620,44 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
 
   return (
     <div className="figma-replica-page">
-      <div className="experience-switch">
-        <button type="button" className={experience === "mock" ? "active" : ""} onClick={() => setExperience("mock")}>Mock Test Flow</button>
-        <button type="button" className={experience === "form" ? "active" : ""} onClick={() => setExperience("form")}>Form Builder Flow</button>
-      </div>
+      <div className="flow-sections">
+        <section className={experience === "mock" ? "flow-section active" : "flow-section"}>
+          <div className="flow-section-head">
+            <h2>Mock Test Flow</h2>
+            <button type="button" className="flow-jump" onClick={() => applyScreen("mock-01")}>Open</button>
+          </div>
+          <div className="scene-switcher" aria-label="Mock test flow screens">
+            {mockScreens.map((screen) => (
+              <button
+                key={screen.id}
+                type="button"
+                className={activeScreen === screen.id ? "active" : ""}
+                onClick={() => applyScreen(screen.id)}
+              >
+                {screen.label}
+              </button>
+            ))}
+          </div>
+        </section>
 
-      <div className="scene-switcher">
-        {(experience === "mock" ? mockScreens : formScreens).map((screen) => (
-          <button
-            key={screen.id}
-            type="button"
-            className={activeScreen === screen.id ? "active" : ""}
-            onClick={() => applyScreen(screen.id)}
-          >
-            {screen.label}
-          </button>
-        ))}
+        <section className={experience === "form" ? "flow-section active" : "flow-section"}>
+          <div className="flow-section-head">
+            <h2>Form Builder Flow</h2>
+            <button type="button" className="flow-jump" onClick={() => applyScreen("form-11")}>Open</button>
+          </div>
+          <div className="scene-switcher" aria-label="Form builder flow screens">
+            {formScreens.map((screen) => (
+              <button
+                key={screen.id}
+                type="button"
+                className={activeScreen === screen.id ? "active" : ""}
+                onClick={() => applyScreen(screen.id)}
+              >
+                {screen.label}
+              </button>
+            ))}
+          </div>
+        </section>
       </div>
 
       {experience === "mock" ? (
@@ -602,16 +678,18 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
             <button type="button" className="close" onClick={() => setShowCreateModal(false)}>×</button>
             <h3>Mock Test / Create Courses</h3>
             <div className="modal-form">
-              <h4>Create Courses</h4>
-              <p>Start creating a new test series</p>
-              <label>Title*<input placeholder="Enter Mock Test Title" /></label>
-              <label>Price<input placeholder="Price" /></label>
-              <label className="inline"><input type="checkbox" /> Make this a free mock test</label>
+              <h4 className="modal-subtitle">Create Courses</h4>
+              <p className="modal-description">Start creating a new test series</p>
+              <div className="modal-grid-two">
+                <label>Title*<input placeholder="Enter Mock Test Title" /></label>
+                <label>Price<input placeholder="Price" /></label>
+              </div>
+              <label className="inline modal-checkbox"><input type="checkbox" /> Make this a free mock test</label>
               <div className="quiz-type-cards">
                 <label><input type="radio" name="quiztype" defaultChecked /> Online quiz</label>
                 <label><input type="radio" name="quiztype" /> Offline quiz</label>
               </div>
-              <label>Select Template<select defaultValue="Select"><option>Select</option></select></label>
+              <label className="template-field">Select Template<select defaultValue="Select"><option>Select</option></select></label>
             </div>
             <div className="modal-actions">
               <button type="button" className="figma-primary" onClick={openBuilder}>Create</button>
@@ -639,14 +717,21 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
                 "Graphical Interpretation",
                 "Multiple Choice V2"
               ].map((item) => (
-                <button key={item} type="button" className={item === "Numerical" ? "selected" : ""}>{item}</button>
+                <button
+                  key={item}
+                  type="button"
+                  className={item === selectedQuestionType ? "selected" : ""}
+                  onClick={() => setSelectedQuestionType(item)}
+                >
+                  {item}
+                </button>
               ))}
             </div>
             <div className="modal-actions-end">
               <button type="button" className="figma-primary" onClick={() => {
                 setSelectedCount(5);
                 setShowAddQuestions(false);
-                onToast?.("Questions added");
+                notify(`${selectedQuestionType} questions added`);
               }}>
                 Add
               </button>
@@ -719,7 +804,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
         <div className="figma-overlay" onClick={(event) => event.target.classList.contains("figma-overlay") && setShowSelectedQuestions(false)}>
           <div className="selected-questions-modal">
             <button type="button" className="close" onClick={() => setShowSelectedQuestions(false)}>×</button>
-            <h3>2 Question Selected</h3>
+            <h3>{selectedQuestionRows.length} Question Selected</h3>
             <p>Only the questions that are not imported into the test will be displayed here</p>
             <table>
               <thead>
@@ -729,14 +814,25 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>249 + 250 = _ _ _ ?</td>
-                  <td><button type="button">Remove</button></td>
-                </tr>
-                <tr>
-                  <td>249 + 250 = _ _ _ ?</td>
-                  <td><button type="button">Remove</button></td>
-                </tr>
+                {selectedQuestionRows.length === 0 ? (
+                  <tr>
+                    <td colSpan={2}>No selected questions left.</td>
+                  </tr>
+                ) : (
+                  selectedQuestionRows.map((rowId, index) => (
+                    <tr key={rowId}>
+                      <td>{index + 1}. 249 + 250 = _ _ _ ?</td>
+                      <td>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedQuestionRows((prev) => prev.filter((item) => item !== rowId))}
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -749,7 +845,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
             <button type="button" className="close" onClick={() => setShowPoolPicker(false)}>×</button>
             <div className="pool-search">
               <input placeholder="Search" />
-              <button type="button">⚙</button>
+              <button type="button" onClick={() => notify("Pool settings opened")}>⚙</button>
             </div>
             <div className="pool-tabs">
               {["Pool", "Word document", "Excel sheet", "Mt Drive"].map((tab) => (
@@ -762,7 +858,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
             <div className="pool-subtitle">Today</div>
             <div className="pool-cards">
               {formCards.map((card, index) => (
-                <button type="button" className="pool-card" key={`${card}-${index}`}>
+                <button type="button" className="pool-card" key={`${card}-${index}`} onClick={() => notify(`${card} selected`)}>
                   <div className="pool-thumb" />
                   <span>{card}</span>
                 </button>
