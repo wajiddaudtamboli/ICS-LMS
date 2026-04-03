@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./mock-test.css";
 
 const seedRows = [
@@ -54,6 +54,10 @@ function MockTestPage({ onToast, searchQuery = "" }) {
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showMcqDesign, setShowMcqDesign] = useState(false);
   const [selectedCount, setSelectedCount] = useState(0);
+  const [mediaPreviewUrl, setMediaPreviewUrl] = useState("");
+  const [mediaPreviewType, setMediaPreviewType] = useState("");
+  const [mediaPreviewName, setMediaPreviewName] = useState("");
+  const mediaInputRef = useRef(null);
 
   const statusClassName = (status) => {
     if (status === "Upcoming") return "status-upcoming";
@@ -85,6 +89,35 @@ function MockTestPage({ onToast, searchQuery = "" }) {
   };
 
   const notify = (message) => onToast?.(message);
+
+  useEffect(() => {
+    return () => {
+      if (mediaPreviewUrl) {
+        URL.revokeObjectURL(mediaPreviewUrl);
+      }
+    };
+  }, [mediaPreviewUrl]);
+
+  const handleMediaSelect = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (mediaPreviewUrl) {
+      URL.revokeObjectURL(mediaPreviewUrl);
+    }
+
+    const nextUrl = URL.createObjectURL(file);
+    const fileType = file.type || "";
+    const mediaType = fileType.startsWith("image/") ? "image" : fileType.startsWith("video/") ? "video" : "document";
+
+    setMediaPreviewUrl(nextUrl);
+    setMediaPreviewType(mediaType);
+    setMediaPreviewName(file.name);
+    notify(`${file.name} attached`);
+    event.target.value = "";
+  };
 
   if (mode === "builder") {
     return (
@@ -127,6 +160,53 @@ function MockTestPage({ onToast, searchQuery = "" }) {
           <button type="button" className="add-section-btn" onClick={() => onToast?.("Section created successfully")}>
             + Add Section
           </button>
+
+          <section className="media-frame-card">
+            <div className="media-frame-head">
+              <h3>Media Frame</h3>
+              <div className="media-frame-actions">
+                <input
+                  ref={mediaInputRef}
+                  type="file"
+                  className="media-input"
+                  accept="image/*,video/*,.pdf,.doc,.docx,.ppt,.pptx"
+                  onChange={handleMediaSelect}
+                />
+                <button type="button" onClick={() => mediaInputRef.current?.click()}>Attach Media</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!mediaPreviewUrl) {
+                      notify("Attach media first to preview");
+                      return;
+                    }
+                    window.open(mediaPreviewUrl, "_blank", "noopener,noreferrer");
+                  }}
+                >
+                  Preview
+                </button>
+              </div>
+            </div>
+            <div className="media-frame-stage" role="img" aria-label="Media frame preview area">
+              {mediaPreviewUrl ? (
+                mediaPreviewType === "image" ? (
+                  <img className="media-frame-content" src={mediaPreviewUrl} alt={mediaPreviewName || "Media preview"} />
+                ) : mediaPreviewType === "video" ? (
+                  <video className="media-frame-content" controls src={mediaPreviewUrl} />
+                ) : (
+                  <div className="media-frame-placeholder">
+                    <strong>{mediaPreviewName || "Document selected"}</strong>
+                    <span>Document preview is available in a new tab.</span>
+                  </div>
+                )
+              ) : (
+                <div className="media-frame-placeholder">
+                  <strong>No media selected</strong>
+                  <span>Upload image, video, or document to preview inside this frame.</span>
+                </div>
+              )}
+            </div>
+          </section>
 
           <div className="question-list">
             {selectedCount > 0 && (
