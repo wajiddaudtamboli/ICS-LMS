@@ -115,9 +115,8 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
   }, [resolvedSearch]);
 
   const openBuilder = () => {
-    setMockMode("builder");
     setShowCreateModal(false);
-    notify("Mock test builder opened");
+    notify("Create Mock Test section removed");
   };
 
   const resetOverlays = () => {
@@ -613,7 +612,6 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
       {experience === "mock" ? (
         <div className="mock-unified-stack">
           {renderMockList()}
-          {renderMockBuilder()}
         </div>
       ) : (
         renderFormBuilder()
