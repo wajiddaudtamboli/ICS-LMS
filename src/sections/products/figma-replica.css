@@ -1291,6 +1291,36 @@
   color: #4b5563;
 }
 
+.file-input-hidden {
+  display: none;
+}
+
+.upload-error-text {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.upload-preview {
+  margin-top: 8px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.upload-preview img {
+  width: 220px;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #d8dde6;
+}
+
+.upload-preview span {
+  font-size: 12px;
+  color: #374151;
+}
+
 .drive-picker-dialog {
   padding-bottom: 14px;
 }

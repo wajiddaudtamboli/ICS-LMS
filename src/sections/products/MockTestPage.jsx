@@ -47,7 +47,9 @@ const seedRows = [
 function MockTestPage({ onToast, searchQuery = "" }) {
   const [search, setSearch] = useState("");
   const [rows, setRows] = useState(seedRows);
-  const [mode, setMode] = useState("list");
+  const [activeToolbarPanel, setActiveToolbarPanel] = useState("analytics");
+  const [compactToolbarView, setCompactToolbarView] = useState(false);
+  const [showToolbarToasts, setShowToolbarToasts] = useState(true);
   const [showCreateSeriesModal, setShowCreateSeriesModal] = useState(false);
   const [showAddQuestionsModal, setShowAddQuestionsModal] = useState(false);
   const [showActionMenu, setShowActionMenu] = useState(false);
@@ -99,13 +101,28 @@ function MockTestPage({ onToast, searchQuery = "" }) {
   }, [activeSearch, rows]);
 
   const startBuilder = () => {
-    setMode("builder");
     setShowCreateSeriesModal(false);
     setOpenMockRowMenuId(null);
-    onToast?.("Mock test builder opened");
+    onToast?.("Mock test builder section removed");
   };
 
   const notify = (message) => onToast?.(message);
+
+  const panelCounts = useMemo(() => {
+    return {
+      total: filteredRows.length,
+      published: filteredRows.filter((item) => item.status === "Published").length,
+      upcoming: filteredRows.filter((item) => item.status === "Upcoming").length,
+      completed: filteredRows.filter((item) => item.status === "Completed").length
+    };
+  }, [filteredRows]);
+
+  const handleToolbarPanel = (panel) => {
+    setActiveToolbarPanel((prev) => (prev === panel ? "" : panel));
+    if (showToolbarToasts) {
+      notify(`${panel.charAt(0).toUpperCase()}${panel.slice(1)} panel ${activeToolbarPanel === panel ? "closed" : "opened"}`);
+    }
+  };
 
   const updateQuestionDraft = (field, value) => {
     setQuestionDraft((prev) => ({ ...prev, [field]: value }));
@@ -261,336 +278,6 @@ function MockTestPage({ onToast, searchQuery = "" }) {
     };
   }, []);
 
-  if (mode === "builder") {
-    return (
-      <div className="mock-test-page">
-        <div className="mock-breadcrumb">
-          <button type="button" className="crumb-link" onClick={() => window.history.back()}>
-            Mock Test
-          </button>
-          <span className="crumb-sep">/</span>
-          <span className="crumb-current">Create Mock Test</span>
-        </div>
-
-        <section className="mock-builder-card">
-          <div className="mock-builder-head">
-            <div>
-              <span className="unpublished-pill">Un-published</span>
-              <h2>Research Writing & Use of AI</h2>
-            </div>
-            <div className="mock-builder-tools">
-              <button type="button" onClick={() => notify("Section options opened")}>⌄</button>
-              <button
-                type="button"
-                onClick={() => {
-                  questions.forEach((item) => {
-                    if (item.imageUrl) {
-                      URL.revokeObjectURL(item.imageUrl);
-                    }
-                  });
-                  setQuestions([]);
-                  notify("Builder reset");
-                }}
-              >
-                ↻
-              </button>
-              <button type="button" onClick={() => setShowActionMenu((prev) => !prev)}>⚙</button>
-            </div>
-          </div>
-
-          <div className="mock-builder-search-row">
-            <input placeholder="Search" />
-            <div className="mock-builder-counts">{questions.length} Questions • 0 Marks</div>
-          </div>
-
-          <div className="mock-section-row">
-            <span>⌃ 1. Section 1</span>
-            <span>• {questions.length} Questions • 0 Marks • 0 Groups</span>
-          </div>
-
-          <button type="button" className="add-question-btn" onClick={() => setShowAddQuestionsModal(true)}>
-            + Add Question
-          </button>
-
-          <button type="button" className="add-section-btn" onClick={() => onToast?.("Section created successfully")}>
-            + Add Section
-          </button>
-
-          <section className="media-frame-card">
-            <div className="media-frame-head">
-              <h3>Media Frame</h3>
-              <div className="media-frame-actions">
-                <input
-                  ref={mediaInputRef}
-                  type="file"
-                  className="media-input"
-                  accept="image/*,video/*,.pdf,.doc,.docx,.ppt,.pptx"
-                  onChange={handleMediaSelect}
-                />
-                <button type="button" onClick={() => mediaInputRef.current?.click()}>Attach Media</button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!mediaPreviewUrl) {
-                      notify("Attach media first to preview");
-                      return;
-                    }
-                    window.open(mediaPreviewUrl, "_blank", "noopener,noreferrer");
-                  }}
-                >
-                  Preview
-                </button>
-              </div>
-            </div>
-            <div className="media-frame-stage" role="img" aria-label="Media frame preview area">
-              {mediaPreviewUrl ? (
-                mediaPreviewType === "image" ? (
-                  <img className="media-frame-content" src={mediaPreviewUrl} alt={mediaPreviewName || "Media preview"} />
-                ) : mediaPreviewType === "video" ? (
-                  <video className="media-frame-content" controls src={mediaPreviewUrl} />
-                ) : (
-                  <div className="media-frame-placeholder">
-                    <strong>{mediaPreviewName || "Document selected"}</strong>
-                    <span>Document preview is available in a new tab.</span>
-                  </div>
-                )
-              ) : (
-                <div className="media-frame-placeholder">
-                  <strong>No media selected</strong>
-                  <span>Upload image, video, or document to preview inside this frame.</span>
-                </div>
-              )}
-            </div>
-          </section>
-
-          <div className="question-list">
-            {questions.length > 0 && (
-              <>
-                {questions.map((item, idx) => (
-                  <div key={item.id} className="question-item question-item-rich">
-                    <div className="question-main-copy">
-                      <strong style={{ fontFamily: item.headerFont }}>{item.header || `Header ${idx + 1}`}</strong>
-                      <span style={{ fontFamily: item.questionFont }}>{idx + 1}. {item.question}</span>
-                      {item.text ? <small style={{ fontFamily: item.textFont }}>{item.text}</small> : null}
-                    </div>
-                    <span className="difficulty">Easy</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setQuestions((prev) => {
-                          const target = prev.find((entry) => entry.id === item.id);
-                          if (target?.imageUrl) {
-                            URL.revokeObjectURL(target.imageUrl);
-                          }
-                          return prev.filter((entry) => entry.id !== item.id);
-                        });
-                        notify("Question deleted");
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))}
-              </>
-            )}
-          </div>
-
-          {showActionMenu && (
-            <div className="builder-action-menu">
-              <button type="button" onClick={() => { setShowMcqDesign(true); setShowActionMenu(false); }}>View All Questions</button>
-              <button type="button" onClick={() => { setShowMcqDesign(true); setShowActionMenu(false); }}>Export Questions</button>
-              <button type="button" onClick={() => { setShowMcqDesign(true); setShowActionMenu(false); }}>Import</button>
-              <button type="button" onClick={() => { setShowActionMenu(false); notify("Quiz instructions opened"); }}>Quiz Instructions</button>
-              <button type="button" onClick={() => { setShowActionMenu(false); notify("Test attachments opened"); }}>Test Attachments</button>
-              <button type="button" onClick={() => { setShowActionMenu(false); notify("Questions group opened"); }}>Questions Group</button>
-            </div>
-          )}
-        </section>
-
-        {showAddQuestionsModal && (
-          <div className="overlay" onClick={(event) => event.target.classList.contains("overlay") && setShowAddQuestionsModal(false)}>
-            <div className="add-questions-modal">
-              <button type="button" className="close-btn" onClick={() => setShowAddQuestionsModal(false)}>×</button>
-              <h3>Add Questions</h3>
-              <p>Select to add questions, test attachment or group the questions</p>
-              <div className="question-type-grid">
-                {["Multiple Choice", "Numerical", "Essay", "Fill In The Blanks", "Group Question", "Multi Input Reasoning", "Two Part Analysis", "Graphical Interpretation", "Multiple Choice V2"].map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    className={item === "Numerical" ? "selected" : ""}
-                    onClick={() => onToast?.(`${item} selected`)}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-              <div className="modal-actions-right">
-                <button
-                  type="button"
-                  className="primary"
-                  onClick={() => {
-                    setShowAddQuestionsModal(false);
-                    setShowQuestionEditor(true);
-                    onToast?.("Question editor opened");
-                  }}
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {showQuestionEditor && (
-          <div className="overlay" onClick={(event) => event.target.classList.contains("overlay") && closeQuestionEditor()}>
-            <div className="question-editor-modal">
-              <button type="button" className="close-btn" onClick={closeQuestionEditor}>×</button>
-              <h3>Question Editor</h3>
-              <p>Complete all fields and insert image if required.</p>
-
-              <div className="question-editor-grid">
-                <label>
-                  Header
-                  <div className="editor-field-stack">
-                    <select value={questionDraft.headerFont} onChange={(event) => updateQuestionDraft("headerFont", event.target.value)}>
-                      <option value="Roboto">Roboto</option>
-                    </select>
-                    <input
-                      value={questionDraft.header}
-                      onChange={(event) => updateQuestionDraft("header", event.target.value)}
-                      placeholder="Type header"
-                      style={{ fontFamily: questionDraft.headerFont }}
-                    />
-                  </div>
-                </label>
-
-                <label>
-                  Question
-                  <div className="editor-field-stack">
-                    <select value={questionDraft.questionFont} onChange={(event) => updateQuestionDraft("questionFont", event.target.value)}>
-                      <option value="Roboto">Roboto</option>
-                    </select>
-                    <textarea
-                      value={questionDraft.question}
-                      onChange={(event) => updateQuestionDraft("question", event.target.value)}
-                      rows={3}
-                      placeholder="Type question"
-                      style={{ fontFamily: questionDraft.questionFont }}
-                    />
-                  </div>
-                </label>
-
-                <label>
-                  Text
-                  <div className="editor-field-stack">
-                    <select value={questionDraft.textFont} onChange={(event) => updateQuestionDraft("textFont", event.target.value)}>
-                      <option value="Roboto">Roboto</option>
-                    </select>
-                    <textarea
-                      value={questionDraft.text}
-                      onChange={(event) => updateQuestionDraft("text", event.target.value)}
-                      rows={4}
-                      placeholder="Add explanation text"
-                      style={{ fontFamily: questionDraft.textFont }}
-                    />
-                  </div>
-                </label>
-
-                <div className="question-image-uploader">
-                  <input
-                    ref={questionImageInputRef}
-                    className="media-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleQuestionImageSelect}
-                  />
-                  <button type="button" className="secondary" onClick={() => questionImageInputRef.current?.click()}>
-                    Insert Image
-                  </button>
-                  {questionDraft.imageUrl ? (
-                    <figure className="question-image-preview">
-                      <img src={questionDraft.imageUrl} alt={questionDraft.imageName || "Question attachment"} />
-                      <figcaption>{questionDraft.imageName}</figcaption>
-                    </figure>
-                  ) : (
-                    <span className="question-image-placeholder">No image selected</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="question-editor-actions">
-                <button type="button" className="primary" onClick={saveQuestion}>Save Question</button>
-                <button type="button" className="secondary" onClick={closeQuestionEditor}>Cancel</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {showMcqDesign && (
-          <div className="overlay" onClick={(event) => event.target.classList.contains("overlay") && setShowMcqDesign(false)}>
-            <div className="mcq-modal">
-              <button type="button" className="close-btn" onClick={() => setShowMcqDesign(false)}>×</button>
-              <h3>MCQ Design</h3>
-              <p>Only the questions that are not imported into the test will be displayed here</p>
-              <div className="mcq-toolbar">
-                <input placeholder="Search by question Details" />
-                <button type="button" onClick={() => notify("Grid view toggled")}>⎚</button>
-                <button type="button" onClick={() => notify("Column picker opened")}>SELECT COLUMNS</button>
-              </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th />
-                    <th>Question Detail</th>
-                    <th>Question Type</th>
-                    <th>Question Tag</th>
-                    <th>Question Level</th>
-                    <th>Marks</th>
-                    <th>Used</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><input type="checkbox" /></td>
-                    <td>249 + 250 = _ _ _ ?</td>
-                    <td>Design</td>
-                    <td>UI</td>
-                    <td>Medium</td>
-                    <td>+ 3.0 / -0.0</td>
-                    <td>11</td>
-                  </tr>
-                  <tr>
-                    <td><input type="checkbox" /></td>
-                    <td>249 + 250 = _ _ _ ?</td>
-                    <td>Research</td>
-                    <td>UX</td>
-                    <td>Easy</td>
-                    <td>+ 5.0 / -0.0</td>
-                    <td>12</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div className="mcq-actions">
-                <button type="button" className="primary" onClick={() => { setShowImportDialog(true); setShowMcqDesign(false); }}>Export</button>
-                <button type="button" className="secondary" onClick={() => setShowMcqDesign(false)}>CANCEL</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {showImportDialog && (
-          <div className="overlay" onClick={(event) => event.target.classList.contains("overlay") && setShowImportDialog(false)}>
-            <div className="import-ok-dialog">
-              <p>Questions are imported to the quiz, Go back to Quiz Builder and verify the questions</p>
-              <button type="button" className="primary" onClick={() => setShowImportDialog(false)}>Close</button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className="mock-test-page">
       <section className="live-header-card">
@@ -603,22 +290,40 @@ function MockTestPage({ onToast, searchQuery = "" }) {
         </button>
       </section>
 
-      <section className="live-toolbar">
+      <section className={`live-toolbar ${compactToolbarView ? "compact" : ""}`}>
         <input value={search || searchQuery} onChange={(event) => setSearch(event.target.value)} placeholder="Search" />
-        <button type="button" className="icon-btn" aria-label="Analytics" title="Analytics" onClick={() => notify("Analytics filter opened") }>
+        <button
+          type="button"
+          className={`icon-btn ${activeToolbarPanel === "analytics" ? "active" : ""}`}
+          aria-label="Analytics"
+          title="Analytics"
+          onClick={() => handleToolbarPanel("analytics")}
+        >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <line x1="18" y1="20" x2="18" y2="10" />
             <line x1="12" y1="20" x2="12" y2="4" />
             <line x1="6" y1="20" x2="6" y2="14" />
           </svg>
         </button>
-        <button type="button" className="icon-btn" aria-label="Settings" title="Settings" onClick={() => notify("Settings opened") }>
+        <button
+          type="button"
+          className={`icon-btn ${activeToolbarPanel === "settings" ? "active" : ""}`}
+          aria-label="Settings"
+          title="Settings"
+          onClick={() => handleToolbarPanel("settings")}
+        >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="3" />
             <path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20 12h2M2 12h2M19.07 19.07l-1.41-1.41M5.34 5.34L3.93 3.93M12 20v2M12 2v2" />
           </svg>
         </button>
-        <button type="button" className="icon-btn" aria-label="Tools" title="Tools" onClick={() => notify("Tools opened") }>
+        <button
+          type="button"
+          className={`icon-btn ${activeToolbarPanel === "tools" ? "active" : ""}`}
+          aria-label="Tools"
+          title="Tools"
+          onClick={() => handleToolbarPanel("tools")}
+        >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <rect x="3" y="7" width="18" height="13" rx="2" />
             <path d="M8 7V5a4 4 0 0 1 8 0v2" />
@@ -626,60 +331,68 @@ function MockTestPage({ onToast, searchQuery = "" }) {
         </button>
       </section>
 
+      {activeToolbarPanel === "analytics" ? (
+        <section className="toolbar-panel">
+          <strong>Analytics</strong>
+          <div className="toolbar-panel-grid">
+            <span>Total: {panelCounts.total}</span>
+            <span>Published: {panelCounts.published}</span>
+            <span>Upcoming: {panelCounts.upcoming}</span>
+            <span>Completed: {panelCounts.completed}</span>
+          </div>
+        </section>
+      ) : null}
+
+      {activeToolbarPanel === "settings" ? (
+        <section className="toolbar-panel">
+          <strong>Settings</strong>
+          <label className="toolbar-toggle-row">
+            <input
+              type="checkbox"
+              checked={compactToolbarView}
+              onChange={(event) => setCompactToolbarView(event.target.checked)}
+            />
+            Compact toolbar
+          </label>
+          <label className="toolbar-toggle-row">
+            <input
+              type="checkbox"
+              checked={showToolbarToasts}
+              onChange={(event) => setShowToolbarToasts(event.target.checked)}
+            />
+            Show action toasts
+          </label>
+        </section>
+      ) : null}
+
+      {activeToolbarPanel === "tools" ? (
+        <section className="toolbar-panel">
+          <strong>Tools</strong>
+          <div className="toolbar-tools-row">
+            <button
+              type="button"
+              onClick={() => {
+                setSearch("");
+                notify("Search cleared");
+              }}
+            >
+              Clear Search
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setRows(seedRows);
+                notify("List reset");
+              }}
+            >
+              Reset List
+            </button>
+          </div>
+        </section>
+      ) : null}
+
       <section className="live-table-card">
-        <div className="live-table-scroll">
-          <table className="live-table">
-            <thead>
-              <tr>
-                <th>Course Name</th>
-                <th>Instructor</th>
-                <th>Date & Time</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRows.map((row) => (
-                <tr key={row.id}>
-                  <td>
-                    <strong>{row.courseName}</strong>
-                    <span>{row.note}</span>
-                  </td>
-                  <td>{row.instructor}</td>
-                  <td>{row.dateTime}</td>
-                  <td>
-                    <span className={`live-status ${statusClassName(row.status)}`}>{row.status}</span>
-                  </td>
-                  <td className={openMockRowMenuId === row.id ? "mock-actions-cell menu-open" : "mock-actions-cell"}>
-                    <button
-                      type="button"
-                      className="kebab-btn"
-                      onClick={() => setOpenMockRowMenuId((prev) => (prev === row.id ? null : row.id))}
-                    >
-                      ⋮
-                    </button>
-                    {openMockRowMenuId === row.id && (
-                      <div className="mock-row-menu">
-                        <button type="button" onClick={() => { startBuilder(); setOpenMockRowMenuId(null); }}>View</button>
-                        <button type="button" onClick={() => { setShowCreateSeriesModal(true); setOpenMockRowMenuId(null); }}>Edit</button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setRows((prev) => prev.filter((item) => item.id !== row.id));
-                            setOpenMockRowMenuId(null);
-                            notify("Mock test deleted");
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <div className="question-empty">Mock test list removed from this section.</div>
       </section>
 
       {showCreateSeriesModal && (

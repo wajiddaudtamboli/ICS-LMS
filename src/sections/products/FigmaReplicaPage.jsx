@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./figma-replica.css";
 
 const mockRows = [
@@ -97,8 +97,52 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
   const [insertTab, setInsertTab] = useState("Upload");
   const [selectedQuestionRows, setSelectedQuestionRows] = useState(["q1", "q2"]);
   const [openMockRowMenuId, setOpenMockRowMenuId] = useState(null);
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [uploadError, setUploadError] = useState("");
+  const uploadInputRef = useRef(null);
 
   const notify = (message) => onToast?.(message);
+
+  const handleUploadFromDevice = (file) => {
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please select an image file.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("Image size should be 5MB or less.");
+      return;
+    }
+
+    setUploadError("");
+    setUploadedImage((prev) => {
+      if (prev?.url) {
+        URL.revokeObjectURL(prev.url);
+      }
+      return {
+        name: file.name,
+        url: URL.createObjectURL(file)
+      };
+    });
+    notify(`${file.name} selected from device`);
+  };
+
+  const onUploadInputChange = (event) => {
+    handleUploadFromDevice(event.target.files?.[0]);
+    event.target.value = "";
+  };
+
+  useEffect(() => {
+    return () => {
+      if (uploadedImage?.url) {
+        URL.revokeObjectURL(uploadedImage.url);
+      }
+    };
+  }, [uploadedImage]);
 
   const resolvedSearch = searchQuery.trim().toLowerCase();
   const filteredRows = useMemo(() => {
@@ -576,11 +620,39 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
             </button>
           ))}
         </div>
-        <div className="upload-drop">
-          <div className="cloud-shape" />
-          <button type="button" className="figma-primary" onClick={() => notify("File picker opened")}>Browse</button>
-          <p>or drag a file here</p>
-        </div>
+        {insertTab === "Upload" ? (
+          <div
+            className="upload-drop"
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={(event) => {
+              event.preventDefault();
+              handleUploadFromDevice(event.dataTransfer.files?.[0]);
+            }}
+          >
+            <input
+              ref={uploadInputRef}
+              className="file-input-hidden"
+              type="file"
+              accept="image/*"
+              onChange={onUploadInputChange}
+            />
+            <div className="cloud-shape" />
+            <button type="button" className="figma-primary" onClick={() => uploadInputRef.current?.click()}>Browse</button>
+            <p>or drag a file here</p>
+            {uploadError ? <small className="upload-error-text">{uploadError}</small> : null}
+            {uploadedImage ? (
+              <div className="upload-preview">
+                <img src={uploadedImage.url} alt={uploadedImage.name} />
+                <span>{uploadedImage.name}</span>
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <div className="upload-drop">
+            <div className="cloud-shape" />
+            <p>Only Upload tab supports selecting from device right now.</p>
+          </div>
+        )}
       </div>
     </div>
   );
