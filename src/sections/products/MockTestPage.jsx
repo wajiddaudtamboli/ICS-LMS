@@ -46,7 +46,7 @@ const seedRows = [
 
 function MockTestPage({ onToast, searchQuery = "" }) {
   const [search, setSearch] = useState("");
-  const [rows] = useState(seedRows);
+  const [rows, setRows] = useState(seedRows);
   const [mode, setMode] = useState("list");
   const [showCreateSeriesModal, setShowCreateSeriesModal] = useState(false);
   const [showAddQuestionsModal, setShowAddQuestionsModal] = useState(false);
@@ -54,6 +54,7 @@ function MockTestPage({ onToast, searchQuery = "" }) {
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showMcqDesign, setShowMcqDesign] = useState(false);
   const [selectedCount, setSelectedCount] = useState(0);
+  const [openMockRowMenuId, setOpenMockRowMenuId] = useState(null);
   const [mediaPreviewUrl, setMediaPreviewUrl] = useState("");
   const [mediaPreviewType, setMediaPreviewType] = useState("");
   const [mediaPreviewName, setMediaPreviewName] = useState("");
@@ -85,6 +86,7 @@ function MockTestPage({ onToast, searchQuery = "" }) {
   const startBuilder = () => {
     setMode("builder");
     setShowCreateSeriesModal(false);
+    setOpenMockRowMenuId(null);
     onToast?.("Mock test builder opened");
   };
 
@@ -118,6 +120,37 @@ function MockTestPage({ onToast, searchQuery = "" }) {
     notify(`${file.name} attached`);
     event.target.value = "";
   };
+
+  useEffect(() => {
+    const closeMenusOnOutside = (event) => {
+      if (!(event.target instanceof Element)) {
+        return;
+      }
+
+      if (!event.target.closest(".mock-actions-cell") && !event.target.closest(".mock-row-menu")) {
+        setOpenMockRowMenuId(null);
+      }
+
+      if (!event.target.closest(".mock-builder-tools") && !event.target.closest(".builder-action-menu")) {
+        setShowActionMenu(false);
+      }
+    };
+
+    const closeMenusOnEsc = (event) => {
+      if (event.key === "Escape") {
+        setOpenMockRowMenuId(null);
+        setShowActionMenu(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", closeMenusOnOutside);
+    window.addEventListener("keydown", closeMenusOnEsc);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeMenusOnOutside);
+      window.removeEventListener("keydown", closeMenusOnEsc);
+    };
+  }, []);
 
   if (mode === "builder") {
     return (
@@ -348,9 +381,25 @@ function MockTestPage({ onToast, searchQuery = "" }) {
 
       <section className="live-toolbar">
         <input value={search || searchQuery} onChange={(event) => setSearch(event.target.value)} placeholder="Search" />
-        <button type="button" className="icon-btn" onClick={() => notify("Analytics filter opened")}>📊</button>
-        <button type="button" className="icon-btn" onClick={() => notify("Settings opened")}>⚙</button>
-        <button type="button" className="icon-btn" onClick={() => notify("Tools opened")}>👜</button>
+        <button type="button" className="icon-btn" aria-label="Analytics" title="Analytics" onClick={() => notify("Analytics filter opened") }>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+        </button>
+        <button type="button" className="icon-btn" aria-label="Settings" title="Settings" onClick={() => notify("Settings opened") }>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20 12h2M2 12h2M19.07 19.07l-1.41-1.41M5.34 5.34L3.93 3.93M12 20v2M12 2v2" />
+          </svg>
+        </button>
+        <button type="button" className="icon-btn" aria-label="Tools" title="Tools" onClick={() => notify("Tools opened") }>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="3" y="7" width="18" height="13" rx="2" />
+            <path d="M8 7V5a4 4 0 0 1 8 0v2" />
+          </svg>
+        </button>
       </section>
 
       <section className="live-table-card">
@@ -377,8 +426,30 @@ function MockTestPage({ onToast, searchQuery = "" }) {
                   <td>
                     <span className={`live-status ${statusClassName(row.status)}`}>{row.status}</span>
                   </td>
-                  <td className="mock-actions-cell">
-                    <button type="button" className="kebab-btn" onClick={startBuilder}>⋮</button>
+                  <td className={openMockRowMenuId === row.id ? "mock-actions-cell menu-open" : "mock-actions-cell"}>
+                    <button
+                      type="button"
+                      className="kebab-btn"
+                      onClick={() => setOpenMockRowMenuId((prev) => (prev === row.id ? null : row.id))}
+                    >
+                      ⋮
+                    </button>
+                    {openMockRowMenuId === row.id && (
+                      <div className="mock-row-menu">
+                        <button type="button" onClick={() => { startBuilder(); setOpenMockRowMenuId(null); }}>View</button>
+                        <button type="button" onClick={() => { setShowCreateSeriesModal(true); setOpenMockRowMenuId(null); }}>Edit</button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRows((prev) => prev.filter((item) => item.id !== row.id));
+                            setOpenMockRowMenuId(null);
+                            notify("Mock test deleted");
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

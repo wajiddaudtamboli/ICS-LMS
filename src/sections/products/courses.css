@@ -246,7 +246,7 @@
 }
 
 .actions-cell.menu-open {
-  z-index: 30;
+  z-index: 80;
 }
 
 .kebab-btn {
@@ -260,15 +260,17 @@
 
 .row-menu {
   position: absolute;
-  top: 25px;
-  right: 0;
-  width: 84px;
+  top: 28px;
+  right: 2px;
+  min-width: 132px;
+  width: max-content;
+  max-width: 168px;
   background: #fff;
   border: 1px solid #d9dfe8;
   border-radius: 6px;
   box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12);
   overflow: hidden;
-  z-index: 21;
+  z-index: 120;
 }
 
 .row-menu button {
@@ -277,7 +279,9 @@
   background: #fff;
   text-align: left;
   font-size: 12px;
-  padding: 7px 9px;
+  line-height: 1.35;
+  white-space: nowrap;
+  padding: 9px 12px;
   cursor: pointer;
 }
 

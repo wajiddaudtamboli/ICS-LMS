@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./courses.css";
 
 function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
@@ -56,6 +56,43 @@ function CoursesPage({ sectionTitle = "Courses", onToast, searchQuery = "" }) {
         .includes(activeSearchQuery);
     });
   }, [coursesSearchQuery, rows, searchQuery, selectedFilter]);
+
+  useEffect(() => {
+    const closeMenusOnOutside = (event) => {
+      if (!(event.target instanceof Element)) {
+        return;
+      }
+
+      if (!event.target.closest(".actions-cell") && !event.target.closest(".row-menu")) {
+        setOpenRowMenuId(null);
+      }
+
+      if (!event.target.closest(".btn-filter") && !event.target.closest(".courses-filter-menu")) {
+        setShowFilterMenu(false);
+      }
+
+      if (!event.target.closest(".section-menu") && !event.target.closest(".builder-card .kebab-btn")) {
+        setShowSectionMenu(false);
+      }
+    };
+
+    const closeMenusOnEsc = (event) => {
+      if (event.key !== "Escape") {
+        return;
+      }
+      setOpenRowMenuId(null);
+      setShowFilterMenu(false);
+      setShowSectionMenu(false);
+    };
+
+    document.addEventListener("pointerdown", closeMenusOnOutside);
+    window.addEventListener("keydown", closeMenusOnEsc);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeMenusOnOutside);
+      window.removeEventListener("keydown", closeMenusOnEsc);
+    };
+  }, []);
 
   const renderCreateTab = () => {
     if (createTab === "content") {

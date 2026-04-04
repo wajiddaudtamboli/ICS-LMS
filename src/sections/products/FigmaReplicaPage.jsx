@@ -54,29 +54,15 @@ const builderQuestions = [
 
 const formCards = ["Abc Pool", "Abc Pool"];
 
-const mockScreens = [
-  { id: "mock-01", label: "01 Mock List" },
-  { id: "mock-02", label: "02 Builder Open" },
-  { id: "mock-03", label: "03 Builder Collapsed" },
-  { id: "mock-04", label: "04 Create Inline" },
-  { id: "mock-05", label: "05 Create Modal" },
-  { id: "mock-06", label: "06 Quick Actions" },
-  { id: "mock-07", label: "07 Questions Added" },
-  { id: "mock-08", label: "08 MCQ Design" },
-  { id: "mock-09", label: "09 Selected Questions" },
-  { id: "mock-10", label: "10 Import Success" }
-];
-
-const formScreens = [
-  { id: "form-11", label: "11 Form + Theme" },
-  { id: "form-12", label: "12 Question Card" },
-  { id: "form-13", label: "13 Form Plain" },
-  { id: "form-14", label: "14 Pool Overlay" },
-  { id: "form-15", label: "15 Pool Standalone" },
-  { id: "form-16", label: "16 Insert Image" },
-  { id: "form-17", label: "17 Drive Picker" },
-  { id: "form-18", label: "18 Theme Blur" },
-  { id: "form-19", label: "19 Minimal Header" }
+const formFeatures = [
+  { id: "form-11", label: "Form + Theme" },
+  { id: "form-12", label: "Question Card" },
+  { id: "form-13", label: "Form Plain" },
+  { id: "form-14", label: "Pool Overlay" },
+  { id: "form-15", label: "Pool Standalone" },
+  { id: "form-16", label: "Insert Image" },
+  { id: "form-18", label: "Theme Blur" },
+  { id: "form-19", label: "Minimal Header" }
 ];
 
 function statusClassName(status) {
@@ -102,20 +88,19 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
   const [showPoolPicker, setShowPoolPicker] = useState(false);
   const [poolTab, setPoolTab] = useState("Pool");
   const [showTheme, setShowTheme] = useState(true);
-  const [formMode, setFormMode] = useState("builder");
+  const [activeFormFeature, setActiveFormFeature] = useState("form-11");
   const [formVariant, setFormVariant] = useState("capital");
   const [showFormDim, setShowFormDim] = useState(false);
+  const [showInsertImageDialog, setShowInsertImageDialog] = useState(false);
   const [selectedQuestionType, setSelectedQuestionType] = useState("Numerical");
   const [formTab, setFormTab] = useState("Questions");
   const [insertTab, setInsertTab] = useState("Upload");
-  const [driveTab, setDriveTab] = useState("My Drive");
   const [selectedQuestionRows, setSelectedQuestionRows] = useState(["q1", "q2"]);
   const [openMockRowMenuId, setOpenMockRowMenuId] = useState(null);
 
   const notify = (message) => onToast?.(message);
 
   const resolvedSearch = searchQuery.trim().toLowerCase();
-
   const filteredRows = useMemo(() => {
     if (!resolvedSearch) {
       return mockRows;
@@ -144,7 +129,52 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
     setShowSelectedQuestions(false);
     setShowPoolPicker(false);
     setShowFormDim(false);
+    setShowInsertImageDialog(false);
     setOpenMockRowMenuId(null);
+  };
+
+  const applyFormFeature = (featureId) => {
+    setActiveFormFeature(featureId);
+    setShowPoolPicker(false);
+    setShowFormDim(false);
+    setShowInsertImageDialog(false);
+
+    if (featureId === "form-11") {
+      setFormVariant("capital");
+      setShowTheme(true);
+    }
+    if (featureId === "form-12") {
+      setFormVariant("question");
+      setShowTheme(true);
+    }
+    if (featureId === "form-13") {
+      setFormVariant("capital");
+      setShowTheme(false);
+    }
+    if (featureId === "form-14") {
+      setFormVariant("capital");
+      setShowTheme(true);
+      setShowPoolPicker(true);
+      setShowFormDim(true);
+    }
+    if (featureId === "form-15") {
+      setFormVariant("capital");
+      setShowTheme(false);
+    }
+    if (featureId === "form-16") {
+      setFormVariant("capital");
+      setShowTheme(true);
+      setShowInsertImageDialog(true);
+    }
+    if (featureId === "form-18") {
+      setFormVariant("capital");
+      setShowTheme(true);
+      setShowFormDim(true);
+    }
+    if (featureId === "form-19") {
+      setFormVariant("minimal");
+      setShowTheme(false);
+    }
   };
 
   const applyScreen = (screenId) => {
@@ -153,7 +183,6 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
 
     if (screenId.startsWith("mock")) {
       setExperience("mock");
-      setFormMode("builder");
       setFormVariant("capital");
       setShowTheme(true);
     } else {
@@ -161,8 +190,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
       setMockMode("builder");
       setSelectedCount(0);
       setCollapsedSection(false);
-      setShowTheme(true);
-      setFormMode("builder");
+      applyFormFeature(screenId);
     }
 
     if (screenId === "mock-01") {
@@ -210,55 +238,42 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
       setShowImportedOk(true);
     }
 
-    if (screenId === "form-11") {
-      setFormMode("builder");
-      setFormVariant("capital");
-      setShowTheme(true);
-    }
-    if (screenId === "form-12") {
-      setFormMode("builder");
-      setFormVariant("question");
-      setShowTheme(true);
-    }
-    if (screenId === "form-13") {
-      setFormMode("builder");
-      setFormVariant("capital");
-      setShowTheme(false);
-    }
-    if (screenId === "form-14") {
-      setFormMode("builder");
-      setFormVariant("capital");
-      setShowTheme(true);
-      setShowPoolPicker(true);
-      setShowFormDim(true);
-    }
-    if (screenId === "form-15") {
-      setFormMode("poolStandalone");
-      setFormVariant("capital");
-      setShowTheme(false);
-    }
-    if (screenId === "form-16") {
-      setFormMode("insertImage");
-    }
-    if (screenId === "form-17") {
-      setFormMode("drivePicker");
-    }
-    if (screenId === "form-18") {
-      setFormMode("builder");
-      setFormVariant("capital");
-      setShowTheme(true);
-      setShowFormDim(true);
-    }
-    if (screenId === "form-19") {
-      setFormMode("builder");
-      setFormVariant("minimal");
-      setShowTheme(false);
-    }
   };
 
   useEffect(() => {
     applyScreen(activeScreen);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const closeMenusOnOutside = (event) => {
+      if (!(event.target instanceof Element)) {
+        return;
+      }
+
+      if (!event.target.closest(".figma-actions-cell") && !event.target.closest(".figma-row-menu")) {
+        setOpenMockRowMenuId(null);
+      }
+
+      if (!event.target.closest(".builder-actions") && !event.target.closest(".quick-actions-menu")) {
+        setShowQuickActions(false);
+      }
+    };
+
+    const closeMenusOnEsc = (event) => {
+      if (event.key === "Escape") {
+        setOpenMockRowMenuId(null);
+        setShowQuickActions(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", closeMenusOnOutside);
+    window.addEventListener("keydown", closeMenusOnEsc);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeMenusOnOutside);
+      window.removeEventListener("keydown", closeMenusOnEsc);
+    };
   }, []);
 
   const renderMockList = () => (
@@ -276,9 +291,27 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
       <section className="figma-toolbar-card">
         <input placeholder="Search" />
         <div className="figma-tool-btns">
-          <button type="button" onClick={() => notify("Layout options opened")}>◫</button>
-          <button type="button" onClick={() => notify("Settings opened")}>⚙</button>
-          <button type="button" onClick={() => notify("More tools opened")}>⌁</button>
+          <button type="button" aria-label="Layout options" title="Layout options" onClick={() => notify("Layout options opened") }>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3" y="4" width="7" height="7" />
+              <rect x="14" y="4" width="7" height="7" />
+              <rect x="3" y="13" width="7" height="7" />
+              <rect x="14" y="13" width="7" height="7" />
+            </svg>
+          </button>
+          <button type="button" aria-label="Settings" title="Settings" onClick={() => notify("Settings opened") }>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20 12h2M2 12h2M19.07 19.07l-1.41-1.41M5.34 5.34L3.93 3.93M12 20v2M12 2v2" />
+            </svg>
+          </button>
+          <button type="button" aria-label="More tools" title="More tools" onClick={() => notify("More tools opened") }>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="1" />
+              <circle cx="19" cy="12" r="1" />
+              <circle cx="5" cy="12" r="1" />
+            </svg>
+          </button>
         </div>
       </section>
 
@@ -326,45 +359,6 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
               ))}
             </tbody>
           </table>
-        </div>
-      </section>
-    </div>
-  );
-
-  const renderCreateInline = () => (
-    <div className="figma-screen-card">
-      <div className="figma-breadcrumb">
-        <button type="button" className="crumb-link" onClick={() => window.history.back()}>
-          Mock Test
-        </button>
-        <span className="crumb-sep">/</span>
-        <span className="crumb-current">Create Mock Test</span>
-      </div>
-      <section className="builder-shell create-inline-shell">
-        <h3>Create Test Series</h3>
-        <p>Start creating a new test series</p>
-        <div className="inline-grid-two">
-          <label>
-            Title*
-            <input placeholder="Enter Mock Test Title" />
-          </label>
-          <label>
-            Price
-            <input placeholder="Price" />
-          </label>
-        </div>
-        <label className="inline-check-row"><input type="checkbox" /> Make this a free mock test</label>
-        <div className="quiz-type-cards">
-          <label><input type="radio" name="quiztypeInline" defaultChecked /> Online quiz</label>
-          <label><input type="radio" name="quiztypeInline" /> Offline quiz</label>
-        </div>
-        <label>
-          Select Template
-          <select defaultValue="Select"><option>Select</option></select>
-        </label>
-        <div className="inline-actions-row">
-          <button type="button" className="figma-primary" onClick={() => applyScreen("mock-02")}>Create</button>
-          <button type="button" className="figma-secondary" onClick={() => applyScreen("mock-01")}>Cancel</button>
         </div>
       </section>
     </div>
@@ -535,56 +529,47 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
               {Array.from({ length: 14 }).map((_, idx) => <span key={`sw-${idx}`} />)}
             </div>
             <div className="theme-action-stack">
-              <button type="button" onClick={() => applyScreen("form-16")}>Insert Image</button>
-              <button type="button" onClick={() => applyScreen("form-17")}>Drive Picker</button>
+              <button type="button" onClick={() => applyFormFeature("form-16")}>Insert Image</button>
             </div>
           </aside>
         )}
       </div>
 
-      <button type="button" className="pool-launch" onClick={() => setShowPoolPicker(true)}>Open Pool Picker</button>
-    </div>
-  );
+      {activeFormFeature === "form-15" && (
+        <div className="form-inline-panel">
+          <h4>Pool Standalone</h4>
+          <div className="pool-search">
+            <input placeholder="Search" />
+            <button type="button" onClick={() => notify("Pool settings opened")}>⚙</button>
+          </div>
+          <div className="pool-tabs">
+            {["Pool"].map((tab) => (
+              <button key={tab} type="button" className={poolTab === tab ? "active" : ""} onClick={() => setPoolTab(tab)}>{tab}</button>
+            ))}
+          </div>
+          <div className="pool-cards">
+            <button type="button" className="pool-card" onClick={() => notify("Pool selected") }>
+              <div className="pool-thumb" />
+              <span>Abc Pool</span>
+            </button>
+          </div>
+        </div>
+      )}
 
-  const renderPoolStandalone = () => (
-    <div className="pool-standalone-screen">
-      <div className="pool-picker-modal standalone">
-        <div className="pool-search">
-          <input placeholder="Search" />
-          <button type="button" onClick={() => notify("Pool settings opened")}>⚙</button>
-        </div>
-        <div className="pool-tabs">
-          {[
-            "Pool",
-            "Word document",
-            "Excel sheet"
-          ].map((tab) => (
-            <button key={tab} type="button" className={poolTab === tab ? "active" : ""} onClick={() => setPoolTab(tab)}>{tab}</button>
-          ))}
-        </div>
-        <div className="pool-title small">Pool</div>
-        <div className="pool-subtitle">Today</div>
-        <div className="pool-cards">
-          <button type="button" className="pool-card" onClick={() => notify("Pool selected") }>
-            <div className="pool-thumb" />
-            <span>Abc Pool</span>
-          </button>
-        </div>
-      </div>
+      <button type="button" className="pool-launch" onClick={() => setShowPoolPicker(true)}>Open Pool Picker</button>
     </div>
   );
 
   const renderInsertImage = () => (
     <div className="dialog-shell">
       <div className="insert-image-dialog">
-        <div className="dialog-head"><h3>Insert image</h3><button type="button" onClick={() => applyScreen("form-11")}>×</button></div>
+        <div className="dialog-head"><h3>Insert image</h3><button type="button" onClick={() => setShowInsertImageDialog(false)}>×</button></div>
         <div className="insert-tabs">
           {[
             "Upload",
             "Webcam",
             "By URL",
             "Photos",
-            "Google Drive",
             "Google Images"
           ].map((tab) => (
             <button type="button" key={tab} className={insertTab === tab ? "active" : ""} onClick={() => setInsertTab(tab)}>
@@ -601,36 +586,6 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
     </div>
   );
 
-  const renderDrivePicker = () => (
-    <div className="dialog-shell">
-      <div className="drive-picker-dialog">
-        <div className="dialog-head"><h3>Select Form</h3><button type="button" onClick={() => applyScreen("form-11")}>×</button></div>
-        <div className="drive-search"><input placeholder="Search in Drive or paste URL" /></div>
-        <div className="drive-tabs">
-          {[
-            "Recent",
-            "My Drive",
-            "Shared with me"
-          ].map((tab) => (
-            <button key={tab} type="button" className={driveTab === tab ? "active" : ""} onClick={() => setDriveTab(tab)}>
-              {tab}
-            </button>
-          ))}
-        </div>
-        <div className="drive-row">My Drive</div>
-        <div className="drive-folders">
-          <button type="button" onClick={() => notify("Opened ICS folder")}>ICS</button>
-          <button type="button" onClick={() => notify("Opened shared folder")}>सामाजिक उद्योगजगता ...</button>
-        </div>
-        <div className="drive-files-title">Files</div>
-        <button type="button" className="drive-file-card" onClick={() => notify("Form selected from Drive") }>
-          <div className="pool-thumb" />
-          <span>Contact Information</span>
-        </button>
-      </div>
-    </div>
-  );
-
   return (
     <div className="figma-replica-page">
       <div className="flow-sections">
@@ -639,17 +594,8 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
             <h2>Mock Test Flow</h2>
             <button type="button" className="flow-jump" onClick={() => applyScreen("mock-01")}>Open</button>
           </div>
-          <div className="scene-switcher" aria-label="Mock test flow screens">
-            {mockScreens.map((screen) => (
-              <button
-                key={screen.id}
-                type="button"
-                className={activeScreen === screen.id ? "active" : ""}
-                onClick={() => applyScreen(screen.id)}
-              >
-                {screen.label}
-              </button>
-            ))}
+          <div className="single-flow-note" aria-label="Single mock test flow">
+            Single page mock test with all features integrated.
           </div>
         </section>
 
@@ -658,31 +604,25 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
             <h2>Form Builder Flow</h2>
             <button type="button" className="flow-jump" onClick={() => applyScreen("form-11")}>Open</button>
           </div>
-          <div className="scene-switcher" aria-label="Form builder flow screens">
-            {formScreens.map((screen) => (
-              <button
-                key={screen.id}
-                type="button"
-                className={activeScreen === screen.id ? "active" : ""}
-                onClick={() => applyScreen(screen.id)}
-              >
-                {screen.label}
-              </button>
-            ))}
+          <div className="single-flow-note" aria-label="Single form builder flow">
+            Single page form builder with all features integrated.
           </div>
         </section>
       </div>
 
       {experience === "mock" ? (
-        mockMode === "list" ? renderMockList() : mockMode === "createInline" ? renderCreateInline() : renderMockBuilder()
-      ) : formMode === "poolStandalone" ? (
-        renderPoolStandalone()
-      ) : formMode === "insertImage" ? (
-        renderInsertImage()
-      ) : formMode === "drivePicker" ? (
-        renderDrivePicker()
+        <div className="mock-unified-stack">
+          {renderMockList()}
+          {renderMockBuilder()}
+        </div>
       ) : (
         renderFormBuilder()
+      )}
+
+      {showInsertImageDialog && (
+        <div className="figma-overlay" onClick={(event) => event.target.classList.contains("figma-overlay") && setShowInsertImageDialog(false)}>
+          {renderInsertImage()}
+        </div>
       )}
 
       {showCreateModal && (
@@ -697,7 +637,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
                 <label>Title*<input placeholder="Enter Mock Test Title" /></label>
                 <label>Price<input placeholder="Price" /></label>
               </div>
-              <label className="inline modal-checkbox"><input type="checkbox" /> Make this a free mock test</label>
+              <div className="inline modal-checkbox">Make this a free mock test</div>
               <div className="quiz-type-cards">
                 <label><input type="radio" name="quiztype" defaultChecked /> Online quiz</label>
                 <label><input type="radio" name="quiztype" /> Offline quiz</label>
@@ -861,7 +801,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
               <button type="button" onClick={() => notify("Pool settings opened")}>⚙</button>
             </div>
             <div className="pool-tabs">
-              {["Pool", "Word document", "Excel sheet", "Mt Drive"].map((tab) => (
+              {["Pool"].map((tab) => (
                 <button key={tab} type="button" className={poolTab === tab ? "active" : ""} onClick={() => setPoolTab(tab)}>
                   {tab}
                 </button>

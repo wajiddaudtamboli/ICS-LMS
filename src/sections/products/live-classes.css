@@ -73,8 +73,12 @@
   border: 1px solid #d9dfe8;
   background: #fff;
   color: #4b5563;
-  min-width: 33px;
-  padding: 0 10px;
+  width: 34px;
+  min-width: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .primary {
@@ -248,7 +252,7 @@
 }
 
 .actions-cell.menu-open {
-  z-index: 30;
+  z-index: 80;
 }
 
 .kebab-btn {
@@ -261,14 +265,16 @@
 
 .row-menu {
   position: absolute;
-  right: 0;
-  top: 24px;
-  width: 110px;
+  right: 2px;
+  top: 28px;
+  min-width: 132px;
+  width: max-content;
+  max-width: 168px;
   border: 1px solid #d9dfe8;
   border-radius: 6px;
   background: #fff;
   box-shadow: 0 12px 20px rgba(15, 23, 42, 0.12);
-  z-index: 8;
+  z-index: 120;
   overflow: hidden;
 }
 
@@ -278,7 +284,9 @@
   background: #fff;
   text-align: left;
   font-size: 12px;
-  padding: 8px 10px;
+  line-height: 1.35;
+  white-space: nowrap;
+  padding: 9px 12px;
   cursor: pointer;
 }
 

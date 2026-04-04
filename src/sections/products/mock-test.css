@@ -273,12 +273,15 @@
   position: absolute;
   right: 12px;
   top: 54px;
-  width: 150px;
+  min-width: 168px;
+  width: max-content;
+  max-width: 220px;
   border: 1px solid #d8dde6;
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.14);
   overflow: hidden;
+  z-index: 120;
 }
 
 .builder-action-menu button {
@@ -286,7 +289,9 @@
   border: none;
   background: #fff;
   text-align: left;
-  padding: 8px 10px;
+  white-space: nowrap;
+  line-height: 1.35;
+  padding: 9px 12px;
   font-size: 12px;
   cursor: pointer;
 }
@@ -443,10 +448,55 @@
   cursor: pointer;
 }
 
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  min-width: 34px;
+  padding: 0;
+}
+
 .mock-actions-cell {
   width: 72px;
   min-width: 72px;
   text-align: center;
+  position: relative;
+}
+
+.mock-actions-cell.menu-open {
+  z-index: 80;
+}
+
+.mock-row-menu {
+  position: absolute;
+  top: 28px;
+  right: 2px;
+  min-width: 132px;
+  width: max-content;
+  max-width: 168px;
+  background: #fff;
+  border: 1px solid #d9dfe8;
+  border-radius: 6px;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+  z-index: 120;
+}
+
+.mock-row-menu button {
+  width: 100%;
+  border: 0;
+  background: #fff;
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: nowrap;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.mock-row-menu button:hover {
+  background: #f3f4f6;
 }
 
 .overlay {

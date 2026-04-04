@@ -2,7 +2,7 @@ import React from "react";
 import "./product-sub-pages.css";
 
 function SimpleProductPage({ title, subtitleTitle, onToast }) {
-  const displayTitle = subtitleTitle || title;
+  const displayTitle = subtitleTitle || (title === "Bundles" ? "course bundles" : title);
 
   return (
     <div className="product-simple-page">

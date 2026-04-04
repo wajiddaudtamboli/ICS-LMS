@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./live-classes.css";
 
 const initialLiveClasses = [
@@ -113,6 +113,32 @@ function LiveClassesPage({ onToast, searchQuery = "" }) {
     setShowSendLikeDialog(false);
   };
 
+  useEffect(() => {
+    const closeRowMenuOnOutside = (event) => {
+      if (!(event.target instanceof Element)) {
+        return;
+      }
+
+      if (!event.target.closest(".actions-cell") && !event.target.closest(".row-menu")) {
+        setOpenRowMenuId(null);
+      }
+    };
+
+    const closeRowMenuOnEsc = (event) => {
+      if (event.key === "Escape") {
+        setOpenRowMenuId(null);
+      }
+    };
+
+    document.addEventListener("pointerdown", closeRowMenuOnOutside);
+    window.addEventListener("keydown", closeRowMenuOnEsc);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeRowMenuOnOutside);
+      window.removeEventListener("keydown", closeRowMenuOnEsc);
+    };
+  }, []);
+
   if (showCreateForm) {
     return (
       <div className="live-classes-page">
@@ -217,9 +243,27 @@ function LiveClassesPage({ onToast, searchQuery = "" }) {
           value={classesSearchQuery || searchQuery}
           onChange={(event) => setClassesSearchQuery(event.target.value)}
         />
-        <button type="button" className="icon-btn" onClick={() => onToast?.("User filter opened")}>user</button>
-        <button type="button" className="icon-btn" onClick={() => onToast?.("Advanced filters opened")}>slider</button>
-        <button type="button" className="icon-btn" onClick={() => onToast?.("Date filter opened")}>calendar</button>
+        <button type="button" className="icon-btn" aria-label="User filter" title="User filter" onClick={() => onToast?.("User filter opened") }>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M20 21a8 8 0 0 0-16 0" />
+            <circle cx="12" cy="8" r="4" />
+          </svg>
+        </button>
+        <button type="button" className="icon-btn" aria-label="Advanced filters" title="Advanced filters" onClick={() => onToast?.("Advanced filters opened") }>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="7" y1="12" x2="17" y2="12" />
+            <line x1="10" y1="18" x2="14" y2="18" />
+          </svg>
+        </button>
+        <button type="button" className="icon-btn" aria-label="Date filter" title="Date filter" onClick={() => onToast?.("Date filter opened") }>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+        </button>
       </section>
 
       {isEmpty ? (

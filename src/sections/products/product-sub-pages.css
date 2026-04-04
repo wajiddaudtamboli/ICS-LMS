@@ -1,220 +1,182 @@
 .product-simple-page {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	width: 100%;
 }
 
 .product-dashed-card {
-  min-height: 148px;
-  border: 1px dashed #c9d2e0;
-  border-radius: 6px;
-  background: #f7f8fa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 18px;
+	min-height: 146px;
+	border: 1px dashed #c9d2e0;
+	border-radius: 6px;
+	background: #f7f8fa;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding: 18px;
 }
 
 .product-dashed-card h2 {
-  margin: 0;
-  font-size: 32px;
-  line-height: 1.12;
-  font-weight: 700;
-  color: #111827;
+	margin: 0;
+	font-size: 32px;
+	line-height: 1.12;
+	font-weight: 700;
+	color: #111827;
 }
 
 .product-dashed-card p {
-  margin-top: 8px;
-  font-size: 13px;
-  color: #374151;
+	margin-top: 8px;
+	font-size: 13px;
+	color: #374151;
 }
 
 .product-create-row {
-  display: flex;
-  justify-content: flex-end;
+	display: flex;
+	justify-content: flex-end;
 }
 
 .product-create-row button {
-  height: 33px;
-  border: 0;
-  border-radius: 7px;
-  padding: 0 18px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #fff;
-  background: #0e4da4;
-  cursor: pointer;
+	border: 0;
+	border-radius: 7px;
+	background: #0e4da4;
+	color: #fff;
+	height: 33px;
+	padding: 0 16px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
 }
 
-.classification-page {
-  padding-top: 4px;
+.classification-page,
+.utilities-page {
+	display: grid;
+	gap: 12px;
 }
 
 .classification-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-  max-width: 980px;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
 }
 
 .classification-card {
-  background: #fff;
-  border: 1px solid #d9dfe8;
-  border-radius: 8px;
-  padding: 14px;
+	border: 1px solid #d9dfe8;
+	border-radius: 8px;
+	background: #fff;
+	padding: 14px;
+	display: grid;
+	gap: 7px;
 }
 
 .classification-icon {
-  width: 20px;
-  height: 20px;
-  border: 1px solid #9ca3af;
-  border-radius: 4px;
-  margin-bottom: 9px;
-  position: relative;
+	width: 24px;
+	height: 24px;
+	border-radius: 6px;
 }
 
-.classification-icon.cat::before,
-.classification-icon.cat::after,
-.classification-icon.tag::before,
-.classification-icon.seg::before {
-  content: "";
-  position: absolute;
-}
-
-.classification-icon.cat::before {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #6b7280;
-  left: 7px;
-  top: 3px;
-}
-
-.classification-icon.cat::after {
-  width: 10px;
-  height: 1px;
-  background: #6b7280;
-  left: 4px;
-  top: 11px;
-  box-shadow: 0 -4px 0 #6b7280;
-}
-
-.classification-icon.tag {
-  transform: rotate(-45deg);
-}
-
-.classification-icon.tag::before {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  border: 1px solid #6b7280;
-  right: 3px;
-  top: 3px;
-}
-
-.classification-icon.seg {
-  border-radius: 50%;
-}
-
-.classification-icon.seg::before {
-  width: 1px;
-  height: 8px;
-  background: #6b7280;
-  left: 9px;
-  top: 1px;
-}
+.classification-icon.cat { background: #eff6ff; }
+.classification-icon.tag { background: #fef3c7; }
+.classification-icon.seg { background: #ecfdf3; }
 
 .classification-card h3 {
-  margin: 0 0 8px;
-  font-size: 30px;
-  line-height: 1.14;
-  color: #111827;
+	margin: 0;
+	font-size: 18px;
+	color: #111827;
 }
 
 .classification-card p {
-  margin: 0 0 9px;
-  min-height: 52px;
-  font-size: 12px;
-  line-height: 1.5;
-  color: #6b7280;
+	margin: 0;
+	font-size: 12px;
+	line-height: 1.45;
+	color: #4b5563;
 }
 
 .classification-card button {
-  border: 0;
-  background: transparent;
-  font-size: 12px;
-  color: #0e4da4;
-  font-weight: 600;
-  padding: 0;
-  cursor: pointer;
+	justify-self: start;
+	border: 1px solid #d9dfe8;
+	border-radius: 6px;
+	background: #fff;
+	color: #1f2937;
+	height: 30px;
+	padding: 0 10px;
+	font-size: 12px;
+	cursor: pointer;
 }
 
-.utilities-page {
-  padding-top: 10px;
+.utilities-head {
+	border: 1px solid #d9dfe8;
+	border-radius: 8px;
+	background: #fff;
+	padding: 14px;
 }
 
 .utilities-head h2 {
-  margin: 0 0 7px;
-  font-size: 30px;
-  line-height: 1.14;
-  color: #111827;
+	margin: 0;
+	font-size: 30px;
+	line-height: 1.15;
+	color: #111827;
 }
 
 .utilities-head p {
-  margin: 0 0 18px;
-  font-size: 12px;
-  line-height: 1.5;
-  color: #374151;
+	margin-top: 6px;
+	font-size: 12px;
+	color: #4b5563;
 }
 
 .utilities-card {
-  width: 100%;
-  border: 1px solid #d9dfe8;
-  border-radius: 8px;
-  background: #fff;
-  padding: 12px 14px;
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  text-align: left;
-  cursor: pointer;
+	border: 1px solid #d9dfe8;
+	border-radius: 8px;
+	background: #fff;
+	padding: 14px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	text-align: left;
+	cursor: pointer;
 }
 
 .utilities-card h3 {
-  margin: 0 0 6px;
-  font-size: 30px;
-  line-height: 1.12;
-  color: #111827;
+	margin: 0;
+	font-size: 17px;
+	color: #111827;
 }
 
-.utilities-card p,
+.utilities-card p {
+	margin: 4px 0 0;
+	font-size: 12px;
+	color: #4b5563;
+}
+
 .utilities-card small {
-  display: block;
-  margin: 0;
-  font-size: 12px;
-  color: #6b7280;
-  line-height: 1.5;
+	display: block;
+	margin-top: 6px;
+	font-size: 11px;
+	color: #6b7280;
 }
 
 .utilities-arrow {
-  font-size: 20px;
-  color: #6b7280;
+	font-size: 22px;
+	color: #0e4da4;
 }
 
-@media (max-width: 1100px) {
-  .classification-grid {
-    grid-template-columns: 1fr;
-    max-width: none;
-  }
+@media (max-width: 1024px) {
+	.classification-grid {
+		grid-template-columns: 1fr 1fr;
+	}
 }
 
-@media (max-width: 760px) {
-  .product-dashed-card h2,
-  .classification-card h3,
-  .utilities-head h2,
-  .utilities-card h3 {
-    font-size: 22px;
-  }
+@media (max-width: 767px) {
+	.classification-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.product-dashed-card h2,
+	.utilities-head h2 {
+		font-size: 22px;
+	}
 }

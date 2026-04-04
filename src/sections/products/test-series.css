@@ -2,16 +2,45 @@
   min-height: 100%;
 }
 
-.test-series-overlay {
-  background: rgba(17, 24, 39, 0.42);
-  border: 1px solid #d9dfe8;
-  border-radius: 10px;
-  padding: 22px;
+.test-series-front {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
-.test-series-modal-shell {
-  max-width: 930px;
-  margin: 0 auto;
+.test-series-dashed-card {
+  min-height: 148px;
+  border: 1px dashed #c9d2e0;
+  border-radius: 6px;
+  background: #f7f8fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 18px;
+}
+
+.test-series-dashed-card h2 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.12;
+  font-weight: 700;
+  color: #111827;
+}
+
+.test-series-dashed-card p {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.test-series-front-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.test-series-create-shell {
   border: 1px solid #cfd4dc;
   border-radius: 8px;
   background: #f3f4f6;
@@ -185,8 +214,7 @@
 }
 
 .test-series-actions button,
-.test-series-closed-card .primary,
-.course-actions button {
+.test-series-front-actions .primary {
   height: 32px;
   min-width: 120px;
   border: 0;
@@ -197,167 +225,18 @@
 }
 
 .test-series-actions .primary,
-.test-series-closed-card .primary,
-.course-actions .primary {
+.test-series-front-actions .primary {
   background: #0e4da4;
   color: #fff;
 }
 
-.test-series-actions .secondary,
-.course-actions .secondary {
+.test-series-actions .secondary {
   background: #dbeafe;
   color: #1f2937;
 }
 
-.test-series-closed-card {
-  border: 1px solid #d9dfe8;
-  border-radius: 8px;
-  background: #fff;
-  padding: 20px;
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-}
-
-.test-series-closed-card h3 {
-  margin: 0;
-  font-size: 21px;
-  color: #111827;
-}
-
-.test-series-closed-card p {
-  margin: 0;
-  font-size: 12px;
-  color: #4b5563;
-}
-
-.course-builder-card {
-  max-width: 880px;
-  margin: 0 auto;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fff;
-  padding: 18px;
-}
-
-.course-builder-card h2 {
-  margin: 0;
-  font-size: 31px;
-  line-height: 1.1;
-  color: #111827;
-}
-
-.course-builder-card p {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #4b5563;
-}
-
-.course-tabs {
-  border-top: 1px solid #d9dfe8;
-  margin-top: 10px;
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-
-.course-tabs button {
-  border: 0;
-  background: transparent;
-  border-bottom: 2px solid transparent;
-  font-size: 12px;
-  color: #374151;
-  padding: 10px 2px 8px;
-  cursor: pointer;
-}
-
-.course-tabs button.active {
-  border-bottom-color: #0e4da4;
-  color: #0e4da4;
-}
-
-.course-section {
-  margin-top: 10px;
-  border: 1px solid #d9dfe8;
-  border-radius: 8px;
-  padding: 12px;
-}
-
-.course-section h3 {
-  margin: 0 0 10px;
-  font-size: 30px;
-  line-height: 1.1;
-  color: #111827;
-}
-
-.course-grid {
-  display: grid;
-  gap: 10px;
-}
-
-.course-grid.two-col {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 10px;
-}
-
-.course-section label {
-  display: grid;
-  gap: 6px;
-  font-size: 12px;
-  color: #111827;
-}
-
-.course-section textarea {
-  height: auto;
-  padding: 8px 10px;
-  resize: none;
-}
-
-.course-thumbnail {
-  margin-top: 12px;
-}
-
-.course-thumbnail h4 {
-  margin: 0 0 6px;
-  font-size: 12px;
-  color: #111827;
-}
-
-.course-drop {
-  border: 1px dashed #cbd5e1;
-  border-radius: 8px;
-  min-height: 136px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  gap: 4px;
-  padding: 10px;
-}
-
-.course-drop-icon {
-  font-size: 34px;
-  line-height: 1;
-  color: #94a3b8;
-}
-
-.course-drop p,
-.course-drop small {
-  margin: 0;
-  font-size: 12px;
-  color: #4b5563;
-}
-
-.course-actions {
-  margin-top: 12px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
 @media (max-width: 900px) {
-  .test-series-overlay {
+  .test-series-create-shell {
     padding: 10px;
   }
 
@@ -381,7 +260,7 @@
 }
 
 @media (max-width: 110px) {
-  .test-series-overlay {
+  .test-series-create-shell {
     padding: 2px;
   }
 

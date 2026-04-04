@@ -40,7 +40,7 @@
 .sidebar-logo {
   padding: 14px 12px 10px;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .logo-box {
@@ -180,6 +180,35 @@
   flex-direction: column;
   margin-left: var(--sidebar-width);
   min-height: 100dvh;
+}
+
+.community-shell.is-desktop.sidebar-closed .community-main {
+  margin-left: 0;
+}
+
+.desktop-sidebar-toggle {
+  position: fixed;
+  top: 10px;
+  left: calc(var(--sidebar-width) + 2px);
+  width: 22px;
+  height: 34px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: #374151;
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 95;
+  box-shadow: none;
+}
+
+.desktop-sidebar-toggle.collapsed {
+  left: 8px;
 }
 
 .community-topbar {
@@ -798,6 +827,10 @@
 }
 
 @media (max-width: 767px) {
+  .desktop-sidebar-toggle {
+    display: none;
+  }
+
   .community-main {
     margin-left: 0;
   }

@@ -105,6 +105,14 @@
   color: #fff;
 }
 
+.single-flow-note {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #4b5563;
+}
+
 .figma-screen-card,
 .figma-form-wrapper {
   background: #f1f3f8;
@@ -309,20 +317,22 @@
 }
 
 .figma-actions-cell.menu-open {
-  z-index: 30;
+  z-index: 80;
 }
 
 .figma-row-menu {
   position: absolute;
-  top: 24px;
-  right: 0;
-  width: 84px;
+  top: 28px;
+  right: 2px;
+  min-width: 132px;
+  width: max-content;
+  max-width: 168px;
   background: #fff;
   border: 1px solid #d9dfe8;
   border-radius: 6px;
   box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12);
   overflow: hidden;
-  z-index: 22;
+  z-index: 120;
 }
 
 .figma-row-menu button {
@@ -331,7 +341,9 @@
   background: #fff;
   text-align: left;
   font-size: 12px;
-  padding: 7px 9px;
+  line-height: 1.35;
+  white-space: nowrap;
+  padding: 9px 12px;
   cursor: pointer;
 }
 
@@ -521,12 +533,15 @@
   position: absolute;
   top: 54px;
   right: 12px;
-  width: 150px;
+  min-width: 168px;
+  width: max-content;
+  max-width: 220px;
   border: 1px solid #d8dde6;
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 14px 28px rgba(15, 23, 42, 0.16);
   overflow: hidden;
+  z-index: 120;
 }
 
 .quick-actions-menu button {
@@ -534,7 +549,9 @@
   border: none;
   background: #fff;
   text-align: left;
-  padding: 8px 10px;
+  white-space: nowrap;
+  line-height: 1.35;
+  padding: 9px 12px;
   font-size: 12px;
   cursor: pointer;
 }
@@ -859,6 +876,37 @@
   padding: 12px;
 }
 
+.form-feature-toolbar {
+  border-top: 1px solid #d8dde6;
+  border-bottom: 1px solid #d8dde6;
+  background: #fff;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mock-unified-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.form-feature-toolbar label {
+  font-size: 12px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.form-feature-toolbar select {
+  width: 240px;
+  height: 32px;
+  border: 1px solid #d8dde6;
+  border-radius: 6px;
+  background: #fff;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
 .form-questions-area {
   display: flex;
   flex-direction: column;
@@ -1068,6 +1116,22 @@
   padding: 7px 10px;
   font-size: 12px;
   cursor: pointer;
+}
+
+.form-inline-panel {
+  margin: 0 12px 12px;
+  border: 1px solid #d8dde6;
+  border-radius: 8px;
+  background: #fff;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.form-inline-panel h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #111827;
 }
 
 .pool-search {

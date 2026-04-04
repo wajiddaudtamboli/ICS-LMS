@@ -567,6 +567,19 @@ function CommunityPage() {
         </div>
       </aside>
 
+      {!isMobile && (
+        <button
+          type="button"
+          className={`desktop-sidebar-toggle ${!sidebarOpen ? "collapsed" : ""}`}
+          aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          aria-controls="community-sidebar"
+          aria-expanded={sidebarOpen}
+          onClick={toggleSidebar}
+        >
+          {sidebarOpen ? "<" : ">"}
+        </button>
+      )}
+
       <button
         type="button"
         className={`sidebar-overlay ${isMobile && sidebarOpen ? "show" : ""}`}
