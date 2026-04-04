@@ -53,12 +53,27 @@ function MockTestPage({ onToast, searchQuery = "" }) {
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showMcqDesign, setShowMcqDesign] = useState(false);
-  const [selectedCount, setSelectedCount] = useState(0);
+  const [showQuestionEditor, setShowQuestionEditor] = useState(false);
+  const [questions, setQuestions] = useState([]);
+  const [questionDraft, setQuestionDraft] = useState({
+    header: "",
+    question: "",
+    text: "",
+    headerFont: "Roboto",
+    questionFont: "Roboto",
+    textFont: "Roboto",
+    imageUrl: "",
+    imageName: ""
+  });
   const [openMockRowMenuId, setOpenMockRowMenuId] = useState(null);
   const [mediaPreviewUrl, setMediaPreviewUrl] = useState("");
   const [mediaPreviewType, setMediaPreviewType] = useState("");
   const [mediaPreviewName, setMediaPreviewName] = useState("");
   const mediaInputRef = useRef(null);
+  const questionImageInputRef = useRef(null);
+  const mediaPreviewUrlRef = useRef("");
+  const questionDraftImageUrlRef = useRef("");
+  const questionImageUrlsRef = useRef([]);
 
   const statusClassName = (status) => {
     if (status === "Upcoming") return "status-upcoming";
@@ -92,13 +107,107 @@ function MockTestPage({ onToast, searchQuery = "" }) {
 
   const notify = (message) => onToast?.(message);
 
+  const updateQuestionDraft = (field, value) => {
+    setQuestionDraft((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const closeQuestionEditor = () => {
+    if (questionDraft.imageUrl) {
+      URL.revokeObjectURL(questionDraft.imageUrl);
+    }
+    setQuestionDraft({
+      header: "",
+      question: "",
+      text: "",
+      headerFont: "Roboto",
+      questionFont: "Roboto",
+      textFont: "Roboto",
+      imageUrl: "",
+      imageName: ""
+    });
+    setShowQuestionEditor(false);
+  };
+
+  const handleQuestionImageSelect = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (questionDraft.imageUrl) {
+      URL.revokeObjectURL(questionDraft.imageUrl);
+    }
+
+    const nextImageUrl = URL.createObjectURL(file);
+    setQuestionDraft((prev) => ({
+      ...prev,
+      imageUrl: nextImageUrl,
+      imageName: file.name
+    }));
+    notify(`${file.name} inserted in question`);
+    event.target.value = "";
+  };
+
+  const saveQuestion = () => {
+    if (!questionDraft.question.trim()) {
+      notify("Question field is required");
+      return;
+    }
+
+    setQuestions((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        header: questionDraft.header.trim(),
+        question: questionDraft.question.trim(),
+        text: questionDraft.text.trim(),
+        headerFont: questionDraft.headerFont,
+        questionFont: questionDraft.questionFont,
+        textFont: questionDraft.textFont,
+        imageUrl: questionDraft.imageUrl,
+        imageName: questionDraft.imageName
+      }
+    ]);
+
+    setQuestionDraft({
+      header: "",
+      question: "",
+      text: "",
+      headerFont: "Roboto",
+      questionFont: "Roboto",
+      textFont: "Roboto",
+      imageUrl: "",
+      imageName: ""
+    });
+    setShowQuestionEditor(false);
+    notify("Question added successfully");
+  };
+
+  useEffect(() => {
+    mediaPreviewUrlRef.current = mediaPreviewUrl;
+  }, [mediaPreviewUrl]);
+
+  useEffect(() => {
+    questionDraftImageUrlRef.current = questionDraft.imageUrl;
+  }, [questionDraft.imageUrl]);
+
+  useEffect(() => {
+    questionImageUrlsRef.current = questions.map((item) => item.imageUrl).filter(Boolean);
+  }, [questions]);
+
   useEffect(() => {
     return () => {
-      if (mediaPreviewUrl) {
-        URL.revokeObjectURL(mediaPreviewUrl);
+      if (mediaPreviewUrlRef.current) {
+        URL.revokeObjectURL(mediaPreviewUrlRef.current);
       }
+      if (questionDraftImageUrlRef.current) {
+        URL.revokeObjectURL(questionDraftImageUrlRef.current);
+      }
+      questionImageUrlsRef.current.forEach((imageUrl) => {
+        URL.revokeObjectURL(imageUrl);
+      });
     };
-  }, [mediaPreviewUrl]);
+  }, []);
 
   const handleMediaSelect = (event) => {
     const file = event.target.files?.[0];
@@ -171,19 +280,32 @@ function MockTestPage({ onToast, searchQuery = "" }) {
             </div>
             <div className="mock-builder-tools">
               <button type="button" onClick={() => notify("Section options opened")}>⌄</button>
-              <button type="button" onClick={() => { setSelectedCount(0); notify("Builder reset"); }}>↻</button>
+              <button
+                type="button"
+                onClick={() => {
+                  questions.forEach((item) => {
+                    if (item.imageUrl) {
+                      URL.revokeObjectURL(item.imageUrl);
+                    }
+                  });
+                  setQuestions([]);
+                  notify("Builder reset");
+                }}
+              >
+                ↻
+              </button>
               <button type="button" onClick={() => setShowActionMenu((prev) => !prev)}>⚙</button>
             </div>
           </div>
 
           <div className="mock-builder-search-row">
             <input placeholder="Search" />
-            <div className="mock-builder-counts">0 Questions • 0 Marks</div>
+            <div className="mock-builder-counts">{questions.length} Questions • 0 Marks</div>
           </div>
 
           <div className="mock-section-row">
             <span>⌃ 1. Section 1</span>
-            <span>• 0 Questions • 0 Marks • 0 Groups</span>
+            <span>• {questions.length} Questions • 0 Marks • 0 Groups</span>
           </div>
 
           <button type="button" className="add-question-btn" onClick={() => setShowAddQuestionsModal(true)}>
@@ -242,14 +364,31 @@ function MockTestPage({ onToast, searchQuery = "" }) {
           </section>
 
           <div className="question-list">
-            {selectedCount > 0 && (
+            {questions.length > 0 && (
               <>
-                {Array.from({ length: selectedCount }).map((_, idx) => (
-                  <div key={`q-${idx}`} className="question-item">
-                    <span>{idx + 1}. How many videos are allowed in one Lesson</span>
-                    <span>#Course</span>
+                {questions.map((item, idx) => (
+                  <div key={item.id} className="question-item question-item-rich">
+                    <div className="question-main-copy">
+                      <strong style={{ fontFamily: item.headerFont }}>{item.header || `Header ${idx + 1}`}</strong>
+                      <span style={{ fontFamily: item.questionFont }}>{idx + 1}. {item.question}</span>
+                      {item.text ? <small style={{ fontFamily: item.textFont }}>{item.text}</small> : null}
+                    </div>
                     <span className="difficulty">Easy</span>
-                    <button type="button" onClick={() => notify(`Question ${idx + 1} actions opened`)}>•••</button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setQuestions((prev) => {
+                          const target = prev.find((entry) => entry.id === item.id);
+                          if (target?.imageUrl) {
+                            URL.revokeObjectURL(target.imageUrl);
+                          }
+                          return prev.filter((entry) => entry.id !== item.id);
+                        });
+                        notify("Question deleted");
+                      }}
+                    >
+                      Delete
+                    </button>
                   </div>
                 ))}
               </>
@@ -291,13 +430,98 @@ function MockTestPage({ onToast, searchQuery = "" }) {
                   type="button"
                   className="primary"
                   onClick={() => {
-                    setSelectedCount(5);
                     setShowAddQuestionsModal(false);
-                    onToast?.("Questions added");
+                    setShowQuestionEditor(true);
+                    onToast?.("Question editor opened");
                   }}
                 >
                   Add
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showQuestionEditor && (
+          <div className="overlay" onClick={(event) => event.target.classList.contains("overlay") && closeQuestionEditor()}>
+            <div className="question-editor-modal">
+              <button type="button" className="close-btn" onClick={closeQuestionEditor}>×</button>
+              <h3>Question Editor</h3>
+              <p>Complete all fields and insert image if required.</p>
+
+              <div className="question-editor-grid">
+                <label>
+                  Header
+                  <div className="editor-field-stack">
+                    <select value={questionDraft.headerFont} onChange={(event) => updateQuestionDraft("headerFont", event.target.value)}>
+                      <option value="Roboto">Roboto</option>
+                    </select>
+                    <input
+                      value={questionDraft.header}
+                      onChange={(event) => updateQuestionDraft("header", event.target.value)}
+                      placeholder="Type header"
+                      style={{ fontFamily: questionDraft.headerFont }}
+                    />
+                  </div>
+                </label>
+
+                <label>
+                  Question
+                  <div className="editor-field-stack">
+                    <select value={questionDraft.questionFont} onChange={(event) => updateQuestionDraft("questionFont", event.target.value)}>
+                      <option value="Roboto">Roboto</option>
+                    </select>
+                    <textarea
+                      value={questionDraft.question}
+                      onChange={(event) => updateQuestionDraft("question", event.target.value)}
+                      rows={3}
+                      placeholder="Type question"
+                      style={{ fontFamily: questionDraft.questionFont }}
+                    />
+                  </div>
+                </label>
+
+                <label>
+                  Text
+                  <div className="editor-field-stack">
+                    <select value={questionDraft.textFont} onChange={(event) => updateQuestionDraft("textFont", event.target.value)}>
+                      <option value="Roboto">Roboto</option>
+                    </select>
+                    <textarea
+                      value={questionDraft.text}
+                      onChange={(event) => updateQuestionDraft("text", event.target.value)}
+                      rows={4}
+                      placeholder="Add explanation text"
+                      style={{ fontFamily: questionDraft.textFont }}
+                    />
+                  </div>
+                </label>
+
+                <div className="question-image-uploader">
+                  <input
+                    ref={questionImageInputRef}
+                    className="media-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleQuestionImageSelect}
+                  />
+                  <button type="button" className="secondary" onClick={() => questionImageInputRef.current?.click()}>
+                    Insert Image
+                  </button>
+                  {questionDraft.imageUrl ? (
+                    <figure className="question-image-preview">
+                      <img src={questionDraft.imageUrl} alt={questionDraft.imageName || "Question attachment"} />
+                      <figcaption>{questionDraft.imageName}</figcaption>
+                    </figure>
+                  ) : (
+                    <span className="question-image-placeholder">No image selected</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="question-editor-actions">
+                <button type="button" className="primary" onClick={saveQuestion}>Save Question</button>
+                <button type="button" className="secondary" onClick={closeQuestionEditor}>Cancel</button>
               </div>
             </div>
           </div>
