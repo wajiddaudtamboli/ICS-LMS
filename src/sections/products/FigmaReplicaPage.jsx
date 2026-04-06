@@ -74,8 +74,8 @@ function statusClassName(status) {
 }
 
 function FigmaReplicaPage({ onToast, searchQuery = "" }) {
-  const [activeScreen, setActiveScreen] = useState("mock-01");
-  const [experience, setExperience] = useState("mock");
+  const [activeScreen, setActiveScreen] = useState("form-11");
+  const [experience, setExperience] = useState("form");
   const [mockMode, setMockMode] = useState("list");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAddQuestions, setShowAddQuestions] = useState(false);
@@ -659,35 +659,7 @@ function FigmaReplicaPage({ onToast, searchQuery = "" }) {
 
   return (
     <div className="figma-replica-page">
-      <div className="flow-sections">
-        <section className={experience === "mock" ? "flow-section active" : "flow-section"}>
-          <div className="flow-section-head">
-            <h2>Mock Test Flow</h2>
-            <button type="button" className="flow-jump" onClick={() => applyScreen("mock-01")}>Open</button>
-          </div>
-          <div className="single-flow-note" aria-label="Single mock test flow">
-            Single page mock test with all features integrated.
-          </div>
-        </section>
-
-        <section className={experience === "form" ? "flow-section active" : "flow-section"}>
-          <div className="flow-section-head">
-            <h2>Form Builder Flow</h2>
-            <button type="button" className="flow-jump" onClick={() => applyScreen("form-11")}>Open</button>
-          </div>
-          <div className="single-flow-note" aria-label="Single form builder flow">
-            Single page form builder with all features integrated.
-          </div>
-        </section>
-      </div>
-
-      {experience === "mock" ? (
-        <div className="mock-unified-stack">
-          {renderMockList()}
-        </div>
-      ) : (
-        renderFormBuilder()
-      )}
+      {renderFormBuilder()}
 
       {showInsertImageDialog && (
         <div className="figma-overlay" onClick={(event) => event.target.classList.contains("figma-overlay") && setShowInsertImageDialog(false)}>

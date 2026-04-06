@@ -357,6 +357,11 @@
   padding: 8px;
 }
 
+.live-toolbar.compact {
+  gap: 6px;
+  padding: 6px;
+}
+
 .live-toolbar input {
   flex: 1;
   min-width: 0;
@@ -374,6 +379,64 @@
   border-radius: 6px;
   background: #dbeafe;
   cursor: pointer;
+}
+
+.icon-btn.active {
+  border-color: #0e4da4;
+  background: #bfdbfe;
+  color: #0b3f88;
+}
+
+.toolbar-panel {
+  background: #fff;
+  border: 1px solid #d8dde6;
+  border-radius: 8px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.toolbar-panel strong {
+  font-size: 12px;
+  color: #1f2937;
+}
+
+.toolbar-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.toolbar-panel-grid span,
+.toolbar-toggle-row {
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.toolbar-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-tools-row {
+  display: flex;
+  gap: 8px;
+}
+
+.toolbar-tools-row button {
+  border: 1px solid #d8dde6;
+  background: #fff;
+  border-radius: 6px;
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+  color: #1f2937;
+  cursor: pointer;
+}
+
+.toolbar-tools-row button:hover {
+  background: #f3f4f6;
 }
 
 .live-table-card {
